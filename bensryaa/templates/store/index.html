@@ -1,0 +1,48 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}Home - BennSrya Store{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-inner container">
+    <div class="hero-glow-box"></div> <!-- Glow Background -->
+    <div class="hero-text">
+      <h1>A great fun for everyone from</h1>
+      <h2>BennSrya Store</h2>
+      <p>Premium games & apps. Dijual aman, langsung kirim license / download link setelah pembayaran.</p>
+    </div>
+    <div class="hero-image">
+      <img src="{% static 'store/img/hero.png' %}" alt="hero">
+    </div>
+  </div>
+</section>
+
+  </div>
+</section>
+<section class="filter-bar container">
+  <a href="?category=game" class="filter-btn {% if request.GET.category == 'game' %}active{% endif %}">Game</a>
+  <a href="?category=app" class="filter-btn {% if request.GET.category == 'app' %}active{% endif %}">App</a>
+</section>
+
+<section class="product-grid container">
+  {% for product in object_list %}
+  <article class="card">
+    <a href="{{ product.get_absolute_url }}">
+      <div class="thumb">
+        {% if product.cover %}
+          <img src="{{ product.cover.url }}" alt="{{ product.title }}">
+        {% else %}
+          <div class="placeholder">No image</div>
+        {% endif %}
+      </div>
+      <div class="meta">
+        <h3>{{ product.title }}</h3>
+      </div>
+    </a>
+  </article>
+  {% endfor %}
+</section>
+
+
+
+{% endblock %}

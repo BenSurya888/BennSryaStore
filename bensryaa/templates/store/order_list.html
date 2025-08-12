@@ -1,0 +1,11 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>Riwayat Pesanan</h2>
+<ul>
+  {% for o in object_list %}
+    <li><a href="{% url 'bensryaa:order_detail' pk=o.pk %}">#{{ o.pk }}</a> — {{ o.product.title }} — Rp {{ o.price }} — {{ o.get_status_display }}</li>
+  {% empty %}
+    <li>Tidak ada pesanan.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

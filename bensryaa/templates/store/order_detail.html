@@ -1,0 +1,14 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>Pesanan #{{ object.pk }}</h2>
+<p>Produk: {{ object.product.title }}</p>
+<p>Paket: {{ object.variant_name }}</p>
+<p>Harga: Rp {{ object.price }}</p>
+<p>Status: {{ object.get_status_display }}</p>
+<p>Game User ID: {{ object.game_user_id }}</p>
+<p>Payment method: {{ object.payment_method }}</p>
+
+{% if object.status == 'pending' %}
+  <p>Langkah selanjutnya: lakukan pembayaran sesuai metode. (Integrasi gateway belum aktif)</p>
+{% endif %}
+{% endblock %}

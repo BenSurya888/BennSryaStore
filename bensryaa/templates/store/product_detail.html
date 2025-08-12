@@ -1,0 +1,145 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container product-detail">
+  <div class="product-layout">
+    <!-- Gambar Produk -->
+    <div class="product-image">
+      {% if object.cover %}
+        <img src="{{ object.cover.url }}" alt="{{ object.title }}">
+      {% else %}
+        <img src="{% static 'store/img/no-image.png' %}" alt="No Image">
+      {% endif %}
+    </div>
+
+    <!-- Info Produk -->
+    <div class="product-info">
+      <h1>{{ object.title }}</h1>
+      <p class="description">{{ object.description }}</p>
+
+      <!-- Pilih Varian -->
+      {% if object.variants.all %}
+      <div class="variant-select">
+        <label for="variant">Pilih Paket:</label>
+        <select id="variant" name="variant">
+          {% for v in object.variants.all %}
+            <option value="{{ v.id }}" data-price="{{ v.price }}">{{ v.name }} - Rp {{ v.price }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <!-- Form Checkout -->
+      <form method="post" action="{% url 'bensryaa:create_order' slug=object.slug %}" class="checkout-form">
+        {% csrf_token %}
+        <input type="hidden" name="variant" id="variant-id" value="{% if object.variants.first %}{{ object.variants.first.id }}{% endif %}">
+
+        <!-- Input Tambahan Dinamis -->
+        {% if object.extra_input_type == "game_id_server" %}
+          <div class="form-group">
+            <label for="game_user_id">User ID</label>
+            <input type="text" id="game_user_id" name="game_user_id" required>
+          </div>
+          <div class="form-group">
+            <label for="server_id">Server ID</label>
+            <input type="text" id="server_id" name="server_id" required>
+          </div>
+        {% elif object.extra_input_type == "phone_number" %}
+          <div class="form-group">
+            <label for="phone_number">Nomor HP</label>
+            <input type="text" id="phone_number" name="phone_number" required>
+          </div>
+        {% elif object.extra_input_type == "email" %}
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+        {% elif object.extra_input_type == "custom" %}
+          <div class="form-group">
+            <label for="custom_input">{{ object.extra_input_label|default:"Masukkan Data" }}</label>
+            <input type="text" id="custom_input" name="custom_input" required>
+          </div>
+        {% endif %}
+
+        <!-- Pilih Pembayaran -->
+        <div class="form-group">
+          <label for="payment_method">Metode Pembayaran</label>
+          <select id="payment_method" name="payment_method" required>
+            <option value="manual">Manual Transfer</option>
+            <option value="midtrans">Midtrans</option>
+          </select>
+        </div>
+
+        <!-- Harga -->
+        <p class="price" id="price-text">
+          Rp {% if object.variants.first %}{{ object.variants.first.price }}{% else %}{{ object.price }}{% endif %}
+        </p>
+
+        <!-- Tombol -->
+        <button type="submit" class="primary-btn">Beli Sekarang</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Script untuk update harga saat ganti varian -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const variantSelect = document.getElementById("variant");
+  const priceText = document.getElementById("price-text");
+  const variantIdInput = document.getElementById("variant-id");
+
+  if (variantSelect) {
+    variantSelect.addEventListener("change", function() {
+      const selected = variantSelect.options[variantSelect.selectedIndex];
+      priceText.textContent = "Rp " + selected.dataset.price;
+      variantIdInput.value = selected.value;
+    });
+  }
+});
+</script>
+
+<style>
+.product-detail {
+  padding: 20px 0;
+}
+.product-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.product-image img {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 10px;
+}
+.product-info {
+  flex: 1;
+  min-width: 280px;
+}
+.description {
+  margin: 10px 0;
+}
+.variant-select, .form-group {
+  margin-bottom: 15px;
+}
+.primary-btn {
+  background: #22f0ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.primary-btn:hover {
+  background: #0d77f0;
+}
+.price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 15px 0;
+}
+</style>
+{% endblock %}

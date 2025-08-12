@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>{% block title %}BennSrya Store{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container">
+      <!-- Logo -->
+      <a class="logo" href="index.html">
+        <img src="{% static 'store/img/logooo.png' %}" alt="BennSryaStore Logo" class="logo-img">
+      </a>
+      <!-- Search -->
+      <form class="search-form" action="." method="get">
+        <input type="text" name="q" placeholder="Search..." aria-label="Search">
+      </form>
+
+      <!-- Main Navigation -->
+      <nav class="nav-actions">
+        <a class="btn ghost" href="/">Home</a>
+        <a class="btn ghost" href="#">Riwayat Transaksi</a>
+        <a class="btn ghost" href="#">Cek Pesanan</a>
+        <a class="btn ghost" href="#">Contact</a>
+        <a class="btn ghost" href="#">Cart</a>
+        <a class="btn ghost" href="#">Profile</a>
+      </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+  Copyright © {{ now|date:"Y" }} BennSryaStore. All Rights Reserved
+
+    </div>
+  </footer>
+
+</body>
+</html>
