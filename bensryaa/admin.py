@@ -1,34 +1,52 @@
-from django.contrib import admin
-from .models import Product, ProductVariant, Order
-
-class ProductVariantInline(admin.TabularInline):
-    model = ProductVariant
-    extra = 1
+from django.urls import path
+from django.http import HttpResponseRedirect
+from django.contrib import admin, messages
+from django.urls import reverse
+from django.conf import settings
+import json, os
+from .models import Product, ProductVariant
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("title", "category", "extra_input_type", "created_at")
-    list_filter = ("category", "is_premium", "extra_input_type")
-    search_fields = ("title", "description")
-    prepopulated_fields = {"slug": ("title",)}
-    inlines = [ProductVariantInline]
-    fieldsets = (
-        ("Info Produk", {
-            "fields": ("title", "slug", "description", "category", "is_premium", "cover", "price")
-        }),
-        ("Pengaturan Input Checkout", {
-            "fields": ("extra_input_type", "extra_input_label"),
-            "description": "Pilih tipe input tambahan yang diminta saat checkout. Gunakan label custom jika memilih tipe 'Custom'."
-        }),
-    )
+    change_list_template = "admin/product_changelist.html"
 
-@admin.register(ProductVariant)
-class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ("product", "name", "price")
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "sync-dummy/",
+                self.admin_site.admin_view(self.sync_dummy),
+                name="product_sync_dummy",
+            ),
+        ]
+        return custom_urls + urls
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "product", "variant_name", "price", "status", "created_at", "user")
-    list_filter = ("status", "created_at")
-    search_fields = ("id", "product__title", "variant_name", "game_user_id", "payment_ref")
-    readonly_fields = ("created_at",)
+    def sync_dummy(self, request):
+        dummy_file = os.path.join(settings.BASE_DIR, "digiflazz_dummy.json")
+        if not os.path.exists(dummy_file):
+            self.message_user(request, "File dummy tidak ditemukan", level=messages.ERROR)
+            return HttpResponseRedirect("../")
+
+        with open(dummy_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        count = 0
+        for item in data.get("data", []):
+            product, _ = Product.objects.get_or_create(
+                slug=item["buyer_sku_code"].lower(),
+                defaults={
+                    "title": item["product_name"],
+                    "category": "game",
+                    "price": item["price"],
+                }
+            )
+            ProductVariant.objects.get_or_create(
+                product=product,
+                name=item["desc"],
+                price=item["price"]
+            )
+            count += 1
+
+        self.message_user(request, f"{count} produk berhasil disinkronkan (dummy).", level=messages.SUCCESS)
+        return HttpResponseRedirect("../")

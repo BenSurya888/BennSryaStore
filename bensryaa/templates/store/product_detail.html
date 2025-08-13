@@ -1,9 +1,12 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
+{% block title %}{{ object.title }} - BennSrya Store{% endblock %}
+
 {% block content %}
 <div class="container product-detail">
   <div class="product-layout">
+    
     <!-- Gambar Produk -->
     <div class="product-image">
       {% if object.cover %}
@@ -15,18 +18,18 @@
 
     <!-- Info Produk -->
     <div class="product-info">
-      <h1>{{ object.title }}</h1>
+      <h1 class="text-glow">{{ object.title }}</h1>
       <p class="description">{{ object.description }}</p>
 
-      <!-- Pilih Varian -->
+      <!-- Pilihan Varian (Card) -->
       {% if object.variants.all %}
-      <div class="variant-select">
-        <label for="variant">Pilih Paket:</label>
-        <select id="variant" name="variant">
-          {% for v in object.variants.all %}
-            <option value="{{ v.id }}" data-price="{{ v.price }}">{{ v.name }} - Rp {{ v.price }}</option>
-          {% endfor %}
-        </select>
+      <div class="variant-card-grid">
+        {% for v in object.variants.all %}
+        <div class="variant-card" data-id="{{ v.id }}" data-price="{{ v.price }}">
+          <h3>{{ v.name }}</h3>
+          <p class="variant-price">Rp {{ v.price }}</p>
+        </div>
+        {% endfor %}
       </div>
       {% endif %}
 
@@ -35,7 +38,7 @@
         {% csrf_token %}
         <input type="hidden" name="variant" id="variant-id" value="{% if object.variants.first %}{{ object.variants.first.id }}{% endif %}">
 
-        <!-- Input Tambahan Dinamis -->
+        <!-- Input Tambahan -->
         {% if object.extra_input_type == "game_id_server" %}
           <div class="form-group">
             <label for="game_user_id">User ID</label>
@@ -72,74 +75,39 @@
         </div>
 
         <!-- Harga -->
-        <p class="price" id="price-text">
+        <p class="price text-glow" id="price-text">
           Rp {% if object.variants.first %}{{ object.variants.first.price }}{% else %}{{ object.price }}{% endif %}
         </p>
 
         <!-- Tombol -->
-        <button type="submit" class="primary-btn">Beli Sekarang</button>
+        <button type="submit" class="filter-btn">Beli Sekarang</button>
+        <a href="{% url 'bensryaa:check_order' %}?ref_id={{ object.ref_id }}" class="filter-btn">Cek Status</a>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Script untuk update harga saat ganti varian -->
+<!-- Script Update Harga -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  const variantSelect = document.getElementById("variant");
+  const variantCards = document.querySelectorAll(".variant-card");
   const priceText = document.getElementById("price-text");
   const variantIdInput = document.getElementById("variant-id");
 
-  if (variantSelect) {
-    variantSelect.addEventListener("change", function() {
-      const selected = variantSelect.options[variantSelect.selectedIndex];
-      priceText.textContent = "Rp " + selected.dataset.price;
-      variantIdInput.value = selected.value;
+  variantCards.forEach(card => {
+    card.addEventListener("click", function() {
+      variantCards.forEach(c => c.classList.remove("active"));
+      this.classList.add("active");
+
+      priceText.textContent = "Rp " + this.dataset.price;
+      variantIdInput.value = this.dataset.id;
     });
+  });
+
+  // Set default active
+  if (variantCards.length > 0) {
+    variantCards[0].classList.add("active");
   }
 });
 </script>
-
-<style>
-.product-detail {
-  padding: 20px 0;
-}
-.product-layout {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-.product-image img {
-  max-width: 400px;
-  width: 100%;
-  border-radius: 10px;
-}
-.product-info {
-  flex: 1;
-  min-width: 280px;
-}
-.description {
-  margin: 10px 0;
-}
-.variant-select, .form-group {
-  margin-bottom: 15px;
-}
-.primary-btn {
-  background: #22f0ff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 5px;
-}
-.primary-btn:hover {
-  background: #0d77f0;
-}
-.price {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 15px 0;
-}
-</style>
 {% endblock %}

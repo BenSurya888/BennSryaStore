@@ -25,16 +25,16 @@
       <form class="search-form" action="." method="get">
         <input type="text" name="q" placeholder="Search..." aria-label="Search">
       </form>
-
       <!-- Main Navigation -->
       <nav class="nav-actions">
-        <a class="btn ghost" href="/">Home</a>
-        <a class="btn ghost" href="#">Riwayat Transaksi</a>
-        <a class="btn ghost" href="#">Cek Pesanan</a>
-        <a class="btn ghost" href="#">Contact</a>
-        <a class="btn ghost" href="#">Cart</a>
-        <a class="btn ghost" href="#">Profile</a>
-      </nav>
+    <a class="btn ghost" href="{% url 'bensryaa:index' %}">Home</a>
+    <a class="btn ghost" href="{% url 'bensryaa:transaction_history' %}">Riwayat Transaksi</a>
+    <a class="btn ghost" href="{% url 'bensryaa:check_order' %}">Cek Pesanan</a>
+    <a class="btn ghost" href="{% url 'bensryaa:profile' %}">Profile</a>
+    <a class="btn ghost" href="{% url 'bensryaa:register' %}">Daftar</a>
+    <a class="btn ghost" href="{% url 'bensryaa:login' %}">Login</a>
+</nav>
+
       </div>
     </div>
   </header>

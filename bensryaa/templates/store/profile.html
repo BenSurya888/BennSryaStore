@@ -1,0 +1,19 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Profil - BennSrya Store{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="text-glow">Profil Pengguna</h1>
+  {% if user.is_authenticated %}
+    <div style="margin-top:20px;padding:15px;border-radius:var(--card-radius);background:white;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+      <p><b>Nama:</b> {{ user.get_full_name }}</p>
+      <p><b>Email:</b> {{ user.email }}</p>
+      <p><b>Bergabung Sejak:</b> {{ user.date_joined|date:"d M Y" }}</p>
+    </div>
+  {% else %}
+    <div class="placeholder">Silakan login untuk melihat profil</div>
+  {% endif %}
+</div>
+{% endblock %}
