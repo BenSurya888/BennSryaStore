@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
-
+from django.contrib.auth.models import User
 
 
 class Product(models.Model):
@@ -45,7 +45,6 @@ class Product(models.Model):
         return reverse("bensryaa:product_detail", kwargs={"slug": self.slug})
 
 
-
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     name = models.CharField(max_length=100)  # contoh: "86 Diamond", "172 Diamond"
@@ -53,6 +52,21 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.title} - {self.name}"
+
+
+class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def total(self):
+        return self.product.price * self.quantity
+
+    def __str__(self):
+        return f"{self.product.title} ({self.quantity})"
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending Payment'),
@@ -63,30 +77,26 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
 
-    # normalisasi buyer — boleh null untuk guest
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
-    # produk & variant (snapshot)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     variant = models.ForeignKey(ProductVariant, null=True, blank=True, on_delete=models.PROTECT)
 
-    # snapshot harga & nama — supaya price tidak berubah ketika varian diupdate
     price = models.DecimalField(max_digits=12, decimal_places=2)
     variant_name = models.CharField(max_length=200, blank=True)
 
-    # data khusus top-up (contoh: game id / user id / server)
     game_user_id = models.CharField(max_length=100, blank=True)
     server_id = models.CharField(max_length=100, blank=True)
 
-    # payment
     payment_method = models.CharField(max_length=50, blank=True)
-    payment_ref = models.CharField(max_length=200, blank=True, null=True)  # misal transaction id dari gateway
+    payment_ref = models.CharField(max_length=200, blank=True, null=True)
 
-    # optional: note/result delivered
+    # 🔹 ref_id untuk Digiflazz
+    ref_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
+
     result = models.TextField(blank=True)
 
     def __str__(self):
         return f"#{self.pk} {self.product.title} ({self.variant_name or 'default'}) - {self.get_status_display()}"
-

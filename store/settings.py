@@ -31,7 +31,14 @@ from decouple import config
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
-DIGIFLAZZ_API_KEY = config('DIGIFLAZZ_API_KEY')
+DIGIFLAZZ_USERNAME = "BEN SURYA AKBAR WIJAYA"
+DIGIFLAZZ_API_KEY = "api_key_kamu"
+DIGIFLAZZ_BASE_URL = "https://api.digiflazz.com/v1"
+
+# settings.py
+BANK_ACCOUNT_NAME = "BennSrya Store"
+BANK_ACCOUNT_NUMBER = "0000000000"
+BANK_NAME = "Bank Dummy"
 
 
 
@@ -135,4 +142,8 @@ STATICFILES_DIRS = [BASE_DIR / 'bensryaa' / 'static' ]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/login/'
 

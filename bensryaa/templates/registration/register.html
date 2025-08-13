@@ -1,0 +1,22 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}Daftar Akun{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:450px;margin-top:40px;">
+    <div style="background:white;padding:25px;border-radius:var(--card-radius);box-shadow:0 6px 18px rgba(0,128,255,0.1);">
+        <h1 class="text-glow" style="text-align:center;margin-bottom:20px;">Daftar Akun</h1>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="filter-btn" style="width:100%;">Daftar</button>
+        </form>
+
+        <p style="margin-top:15px;text-align:center;">
+            Sudah punya akun? <a href="{% url 'bensryaa:login' %}">Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

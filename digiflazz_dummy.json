@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "product_name": "Mobile Legends 86 Diamonds",
+      "buyer_sku_code": "ML86D",
+      "desc": "86 Diamonds",
+      "price": 20000
+    },
+    {
+      "product_name": "Mobile Legends 172 Diamonds",
+      "buyer_sku_code": "ML172D",
+      "desc": "172 Diamonds",
+      "price": 40000
+    },
+    {
+      "product_name": "Free Fire 70 Diamonds",
+      "buyer_sku_code": "FF70D",
+      "desc": "70 Diamonds",
+      "price": 15000
+    }
+  ]
+}

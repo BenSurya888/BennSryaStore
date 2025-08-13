@@ -1,14 +1,17 @@
 {% extends 'store/base.html' %}
-{% block content %}
-<h2>Pesanan #{{ object.pk }}</h2>
-<p>Produk: {{ object.product.title }}</p>
-<p>Paket: {{ object.variant_name }}</p>
-<p>Harga: Rp {{ object.price }}</p>
-<p>Status: {{ object.get_status_display }}</p>
-<p>Game User ID: {{ object.game_user_id }}</p>
-<p>Payment method: {{ object.payment_method }}</p>
+{% load static %}
 
-{% if object.status == 'pending' %}
-  <p>Langkah selanjutnya: lakukan pembayaran sesuai metode. (Integrasi gateway belum aktif)</p>
+{% block title %}{{ object.title }} - BennSrya Store{% endblock %}
+
+{% block content %}
+{% if object.payment_method == "manual" and object.status == "pending" %}
+<hr>
+<h3>Instruksi Pembayaran (Dummy)</h3>
+<p>Bank: {{ BANK_NAME }}</p>
+<p>No Rekening: {{ BANK_ACCOUNT_NUMBER }}</p>
+<p>Atas Nama: {{ BANK_ACCOUNT_NAME }}</p>
+<p>Nominal: Rp {{ object.price }}</p>
+<p>Keterangan / Ref ID: {{ object.ref_id }}</p>
+<p><em>Silakan transfer sesuai nominal ke rekening di atas (Dummy Mode - tidak ada transfer uang sungguhan).</em></p>
 {% endif %}
 {% endblock %}

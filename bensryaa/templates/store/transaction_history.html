@@ -1,0 +1,41 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Riwayat Transaksi - BennSrya Store{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="text-glow">Riwayat Transaksi</h1>
+
+  {% if transactions %}
+    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+      <thead style="background:var(--accent);color:white;">
+        <tr>
+          <th style="padding:10px;">ID</th>
+          <th>Ref ID</th>
+          <th>Produk</th>
+          <th>Tanggal</th>
+          <th>Status</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+        <tr style="text-align:center;border-bottom:1px solid #ccc;">
+          <td style="padding:10px;">
+            <a href="{% url 'bensryaa:order_detail' tx.id %}">{{ tx.id }}</a>
+          </td>
+          <td>{{ tx.ref_id }}</td>
+          <td>{{ tx.product.title }}</td>
+          <td>{{ tx.created_at|date:"d M Y H:i" }}</td>
+          <td>{{ tx.get_status_display }}</td>
+          <td>Rp {{ tx.price }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="placeholder">Belum ada transaksi</div>
+  {% endif %}
+</div>
+{% endblock %}
