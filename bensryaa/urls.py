@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import IndexView, ProductDetailView ,CreateOrderView, OrderListView, OrderDetailView,transaction_history,check_order,add_to_cart,remove_from_cart,profile,register,login,sync_products_dummy
+from .views import IndexView, ProductDetailView ,CreateOrderView, OrderListView, OrderDetailView,transaction_history,check_order,add_to_cart,remove_from_cart,profile,register,login,sync_products_dummy,logout_view
 
 app_name = "bensryaa"
 
@@ -8,6 +8,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),  # auth bawaan Django
     path("register/", register, name="register"),
     path("login/", login, name="login"),
+     path('logout/', logout_view, name='logout'),
     path("transaction_history/", transaction_history, name="transaction_history"),
     path("check_order/", check_order, name="check_order"),
     path("add-to-cart/<slug:slug>/", add_to_cart, name="add_to_cart"),
