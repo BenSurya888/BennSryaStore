@@ -13,7 +13,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from .forms import CheckoutForm
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth import login,authenticate,logout
 from django.conf import settings
 import requests
 from django.http import JsonResponse
@@ -57,6 +57,26 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, "registration/register.html", {"form": form})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('registration/login.html')
+
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)  # ✅ wajib ada request dan user
+            return redirect('home')
+        else:
+            messages.error(request, 'Username atau password salah.')
+
+    return render(request, "registration/login.html")
 
 def home(request):
     products = Product.objects.all()
