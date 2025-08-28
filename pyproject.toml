@@ -1,0 +1,20 @@
+[project]
+name = "store"
+version = "0.1.0"
+description = "Django Store Project"
+requires-python = ">=3.11"
+dependencies = [
+    "Django>=5.0",
+    "gunicorn",
+    "pillow>=11.3.0",
+    "requests",
+    "whitenoise>=6.7",
+]
+
+[tool.setuptools.packages.find]
+include = ["store*", "bensryaa*"]
+exclude = ["media*", "staticfiles*"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
