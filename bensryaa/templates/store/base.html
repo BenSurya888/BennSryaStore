@@ -5,10 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>{% block title %}BennSrya{% endblock %}</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  
-  <!-- CSS -->
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+
+  <!-- Favicon & CSS -->
   <link rel="icon" type="image/png" href="{% static 'store/img/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
 </head>
@@ -18,44 +19,62 @@
   <header class="site-header">
     <div class="container">
       <!-- Logo -->
-      <a class="logo" href="index.html">
+      <a class="logo" href="{% url 'bensryaa:index' %}">
         <img src="{% static 'store/img/logooo.png' %}" alt="BennSryaStore Logo" class="logo-img">
       </a>
-      <!-- Search -->
-      <form class="search-form" action="." method="get">
-        <input type="text" name="q" placeholder="Search..." aria-label="Search">
-      </form>
+
+<div class="search-toggle-wrapper">
+  <!-- Search -->
+  <form class="search-form" action="." method="get">
+    <input type="text" name="q" placeholder="Search..." aria-label="Search">
+  </form>
+
+  <!-- Toggle Mobile -->
+  <div class="mobile-toggle" id="mobileToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
       <!-- Main Navigation -->
-      <nav class="nav-actions">
-    <a class="btn ghost" href="{% url 'bensryaa:index' %}">Home</a>
-    <a class="btn ghost" href="{% url 'bensryaa:transaction_history' %}">Riwayat Transaksi</a>
-    <a class="btn ghost" href="{% url 'bensryaa:check_order' %}">Cek Pesanan</a>
-    {% if user.is_authenticated %}
-    <a class="btn ghost" href="{% url 'bensryaa:logout' %}">Logout</a>
-{% else %}
-    <a class="btn ghost" href="{% url 'bensryaa:register' %}">Daftar</a>
-    <a class="btn ghost" href="{% url 'bensryaa:login' %}">Login</a>
-{% endif %}
+      <nav class="main-nav">
+        <a href="{% url 'bensryaa:index' %}">Home</a>
+        <a href="{% url 'bensryaa:transaction_history' %}">Riwayat Transaksi</a>
+        <a href="{% url 'bensryaa:check_order' %}">Cek Pesanan</a>
 
-    <a class="btn ghost" style="margin-left: 40px;" href="{% url 'bensryaa:profile' %}">👤</a>
-</nav>
-
-      </div>
+        {% if user.is_authenticated %}
+          <a href="{% url 'bensryaa:logout' %}">Logout</a>
+          <a href="{% url 'bensryaa:profile' %}">👤 Profile</a>
+        {% else %}
+          <a href="{% url 'bensryaa:register' %}">Daftar</a>
+          <a href="{% url 'bensryaa:login' %}">Login</a>
+        {% endif %}
+      </nav>
     </div>
   </header>
 
   <!-- CONTENT -->
-  <main>
+  <main class="container">
     {% block content %}{% endblock %}
   </main>
 
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="container">
-  Copyright © {{ now|date:"Y" }} BennSryaStore. All Rights Reserved
-
+      Copyright © {{ now|date:"Y" }} BennSryaStore. All Rights Reserved
     </div>
   </footer>
 
+  <!-- Script for Hamburger -->
+  <script>
+    const mobileToggle = document.getElementById('mobileToggle');
+    const nav = document.querySelector('.main-nav');
+
+    mobileToggle.addEventListener('click', () => {
+      mobileToggle.classList.toggle('active');
+      nav.classList.toggle('active');
+    });
+  </script>
 </body>
 </html>

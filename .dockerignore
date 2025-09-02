@@ -1,10 +1,10 @@
 .git
 __pycache__/
 *.py[cod]
-*.sqlite3
 .vscode/
 .idea/
 .venv/
 node_modules/
 staticfiles/
 media/
+letsencrypt/

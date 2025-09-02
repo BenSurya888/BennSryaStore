@@ -1,31 +1,37 @@
 {% extends "store/base.html" %}
 {% load static %}
 
-{% block title %}Login - BennSrya Store{% endblock %}
+{% block title %}Login - BennSrya{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width:450px;margin-top:40px;">
-    <div style="background:white;padding:25px;border-radius:var(--card-radius);box-shadow:0 6px 18px rgba(0,128,255,0.1);">
-        <h1 class="text-glow" style="text-align:center;margin-bottom:20px;">Login</h1>
-        
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_username">Username</label>
-                <input type="text" name="username" autofocus required id="id_username">
-            </div>
+<div class="container" style="max-width: 500px; margin: 40px auto;">
+  <h2 style="text-align:center; margin-bottom: 20px;">Login</h2>
 
-            <div class="form-group">
-                <label for="id_password">Password</label>
-                <input type="password" name="password" required id="id_password">
-            </div>
-
-            <button type="submit" class="filter-btn" style="width:100%;">Login</button>
-        </form>
-
-        <p style="margin-top:15px;text-align:center;">
-            Belum punya akun? <a href="#">Daftar</a>
-        </p>
+  {% if messages %}
+    <div>
+      {% for message in messages %}
+        <p style="color: red; text-align:center;">{{ message }}</p>
+      {% endfor %}
     </div>
+  {% endif %}
+
+  <form method="POST" class="card" style="padding: 20px;">
+    {% csrf_token %}
+    <div style="margin-bottom: 15px;">
+      <label for="username">Username</label><br>
+      <input type="text" name="username" id="username" required class="input-field" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <label for="password">Password</label><br>
+      <input type="password" name="password" id="password" required class="input-field" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+    </div>
+
+    <button type="submit" class="btn ghost" style="width:100%;">Login</button>
+  </form>
+
+  <p style="text-align:center; margin-top:15px;">
+    Belum punya akun? <a href="{% url 'bensryaa:register' %}">Daftar</a>
+  </p>
 </div>
 {% endblock %}

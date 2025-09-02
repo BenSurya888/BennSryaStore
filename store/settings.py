@@ -15,7 +15,8 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+DIGIFLAZZ_USERNAME = "sikofeDbNPOD"
+DIGIFLAZZ_API_KEY = "1c0bdb6d-fbd3-5fba-91a0-482b3a9200ab"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -28,6 +29,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "108.136.77.104",       # IP Elastic
+    "bennsuryashop.soberdev.net" # domain kamu kalau ada
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1",
+    "http://localhost",
+    "http://108.136.77.104",
+    "https://108.136.77.104",
+    "http://bennsuryashop.soberdev.net",
+    "https://bennsuryashop.soberdev.net",
+]
 
 
 

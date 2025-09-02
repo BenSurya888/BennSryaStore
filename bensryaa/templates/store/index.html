@@ -3,13 +3,13 @@
 {% block title %}Home - BennSrya{% endblock %}
 
 {% block content %}
+<!-- HERO SECTION -->
 <section class="hero">
   <div class="hero-inner container">
-    <div class="hero-glow-box"></div> <!-- Glow Background -->
     <div class="hero-text">
       <h1>A great fun for everyone from</h1>
       <h2>BennSrya</h2>
-      <p>Tempat Top Up Game,App Prem & Belanja Online Terpercaya. Cepat, Aman, dan Praktis!</p>
+      <p>Tempat Top Up Game, App Prem & Belanja Online Terpercaya. Cepat, Aman, dan Praktis!</p>
     </div>
     <div class="hero-image">
       <img src="{% static 'store/img/hero.png' %}" alt="hero">
@@ -17,13 +17,13 @@
   </div>
 </section>
 
-  </div>
-</section>
+<!-- FILTER BAR -->
 <section class="filter-bar container">
   <a href="?category=game" class="filter-btn {% if request.GET.category == 'game' %}active{% endif %}">Game</a>
   <a href="?category=app" class="filter-btn {% if request.GET.category == 'app' %}active{% endif %}">App</a>
 </section>
 
+<!-- PRODUCT GRID -->
 <section class="product-grid container">
   {% for product in object_list %}
   <article class="card">
@@ -40,9 +40,8 @@
       </div>
     </a>
   </article>
+  {% empty %}
+    <p>Tidak ada produk tersedia.</p>
   {% endfor %}
 </section>
-
-
-
 {% endblock %}

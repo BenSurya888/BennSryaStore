@@ -12,11 +12,42 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from .forms import CheckoutForm
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login,authenticate,logout
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.contrib.auth import authenticate,login as auth_login, logout as auth_logout
 from django.conf import settings
-import requests
 from django.http import JsonResponse
+import requests, hashlib, json
+
+def dashboard_view(request):
+    url = "https://api.digiflazz.com/v1/cek-saldo"
+    signature = hashlib.md5(
+        (settings.DIGIFLAZZ_USERNAME + settings.DIGIFLAZZ_API_KEY + "cek-saldo").encode("utf-8")
+    ).hexdigest()
+
+    payload = {
+        "cmd": "deposit",
+        "username": settings.DIGIFLAZZ_USERNAME,
+        "sign": signature
+    }
+
+    try:
+        res = requests.post(url, json=payload, timeout=10)
+        data = res.json()
+
+        # ambil saldo
+        saldo = data.get("data", {}).get("deposit", "-")
+        status = "Sukses" if saldo != "-" else f"Gagal: {data}"
+    except Exception as e:
+        saldo = "-"
+        status = f"Error: {e}"
+
+    return render(request, "store/dashboard.html", {
+        "saldo": saldo,
+        "status": status,
+        "raw_response": data if 'data' in locals() else None  # biar gampang debug
+    })
+
 
 @staff_member_required
 def sync_products_dummy(request):
@@ -45,42 +76,50 @@ def sync_products_dummy(request):
 
     return JsonResponse({"message": f"{count} produk berhasil disinkronkan (dummy)."})
 
-def register(request):
+def register_view(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # langsung login setelah daftar
-            messages.success(request, "Akun berhasil dibuat, selamat datang!")
-            return redirect("bensryaa:index")  # redirect ke home
-    else:
-        form = UserCreationForm()
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-    return render(request, "registration/register.html", {"form": form})
+        # Validasi password minimal 8 karakter
+        if len(password) < 8:
+            messages.error(request, "Password minimal 8 karakter.")
+            return redirect("bensryaa:register")
 
-@login_required
-def logout_view(request):
-    logout(request)
-    return redirect('registration/login.html')
+        # Cek apakah username sudah ada
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username sudah dipakai.")
+            return redirect("bensryaa:register")
 
-def login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        # Simpan user baru
+        user = User.objects.create_user(username=username, password=password)
+        messages.success(request, "Registrasi berhasil! Silakan login.")
+        return redirect("bensryaa:login")
+
+    return render(request, "registration/register.html")
+
+# Login
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         user = authenticate(request, username=username, password=password)
-
         if user is not None:
-            login(request, user)  # ✅ wajib ada request dan user
-            return redirect('home')
+            auth_login(request, user)
+            messages.success(request, f"Selamat datang {username}!")
+            return redirect("bensryaa:index")  # ke home/index
         else:
-            messages.error(request, 'Username atau password salah.')
+            messages.error(request, "Username atau password salah.")
+            return redirect("bensryaa:login")
 
     return render(request, "registration/login.html")
 
-def home(request):
-    products = Product.objects.all()
-    return render(request, "index.html", {"object_list": products})
+# Logout
+def logout_view(request):
+    auth_logout(request)
+    messages.info(request, "Anda telah logout.")
+    return redirect("bensryaa:index")
 
 # 📜 Riwayat Transaksi
 @login_required
