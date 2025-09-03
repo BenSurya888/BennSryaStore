@@ -17,7 +17,6 @@ urlpatterns = [
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
 
-    path("dashboard/", dashboard_view, name="dashboard"),
     path("transaction_history/", transaction_history, name="transaction_history"),
     path("check_order/", check_order, name="check_order"),
 
