@@ -1,0 +1,17 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Profil - BennSrya Store{% endblock %}
+
+{% block content %}
+<main class="container">
+  <h1>{{ object.name }}</h1>
+  <p>{{ object.desc }}</p>
+  <p>Harga: Rp {{ object.price }}</p>
+
+  {% if object.image_url %}
+    <img src="{% static object.image_url %}" alt="{{ object.name }}">
+  {% endif %}
+</main>
+
+{% endblock %}

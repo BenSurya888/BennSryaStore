@@ -11,12 +11,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import hashlib
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 DIGIFLAZZ_USERNAME = "sikofeDbNPOD"
-DIGIFLAZZ_API_KEY = "1c0bdb6d-fbd3-5fba-91a0-482b3a9200ab"
+DIGIFLAZZ_API_KEY = "dev-f3327c10-8704-11f0-8208-63d7938d60d9"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -24,6 +25,11 @@ DIGIFLAZZ_API_KEY = "1c0bdb6d-fbd3-5fba-91a0-482b3a9200ab"
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # SECURITY WARNING: don't run with debug turned on in production!
+def digiflazz_sign(cmd="prepaid"):
+    raw = DIGIFLAZZ_USERNAME + DIGIFLAZZ_API_KEY + cmd
+    return hashlib.md5(raw.encode("utf-8")).hexdigest()
+
+DIGIFLAZZ_SIGN = digiflazz_sign()
 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")

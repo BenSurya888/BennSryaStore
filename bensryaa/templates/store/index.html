@@ -19,29 +19,33 @@
 
 <!-- FILTER BAR -->
 <section class="filter-bar container">
+  <a href="?" class="filter-btn {% if not request.GET.category %}active{% endif %}">Semua</a>
   <a href="?category=game" class="filter-btn {% if request.GET.category == 'game' %}active{% endif %}">Game</a>
-  <a href="?category=app" class="filter-btn {% if request.GET.category == 'app' %}active{% endif %}">App</a>
+  <a href="?category=pulsa" class="filter-btn {% if request.GET.category == 'pulsa' %}active{% endif %}">Pulsa</a>
+  <a href="?category=pln" class="filter-btn {% if request.GET.category == 'pln' %}active{% endif %}">PLN</a>
+  <a href="?category=e-money" class="filter-btn {% if request.GET.category == 'e-money' %}active{% endif %}">E-Money</a>
 </section>
+
 
 <!-- PRODUCT GRID -->
 <section class="product-grid container">
   {% for product in object_list %}
-  <article class="card">
-    <a href="{{ product.get_absolute_url }}">
-      <div class="thumb">
-        {% if product.cover %}
-          <img src="{{ product.cover.url }}" alt="{{ product.title }}">
+    <article class="card">
+      <a href="{% url 'bensryaa:product_detail' product.code %}">
+        {% if product.image_url %}
+          <img src="{% static product.image_url %}" alt="{{ product.name }}">
         {% else %}
-          <div class="placeholder">No image</div>
+          <img src="{% static 'store/img/placeholder.png' %}" alt="{{ product.name }}">
         {% endif %}
-      </div>
-      <div class="meta">
-        <h3>{{ product.title }}</h3>
-      </div>
-    </a>
-  </article>
+        <div class="meta">
+          <h3>{{ product.name }}</h3>
+        </div>
+      </a>
+    </article>
   {% empty %}
     <p>Tidak ada produk tersedia.</p>
   {% endfor %}
 </section>
+
+
 {% endblock %}

@@ -12,7 +12,7 @@ html, body {
   display: flex;
   flex-direction: column;
   font-family: 'Fredoka One', sans-serif;
-  background: #cce7ff;
+  background: #e63601ff;
   color: #222;
 }
 main.container {
@@ -43,7 +43,7 @@ img {
 
 /* HEADER */
 .site-header {
-  background: linear-gradient(90deg, #4facfe, #00f2fe);
+  background: linear-gradient(90deg, #f51a13ff, #ecb910ff);
   padding: 12px 0;
   position: sticky;
   top: 0;
@@ -87,13 +87,25 @@ img {
   box-shadow: 0 0 8px rgba(0, 119, 182, 0.5);
 }
 
-/* NAVIGATION */
+/* DESKTOP NAV BACKGROUND */
+/* DESKTOP NAV BACKGROUND */
 .main-nav {
   display: flex;
   gap: 20px;
   align-items: center;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1); /* transparan */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.3s ease, transform 0.3s ease;
 }
 
+.main-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* NAV LINKS tetap putih */
 .main-nav a {
   display: block;
   padding: 10px 14px;
@@ -107,13 +119,6 @@ img {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
-
-/* NAV ACTIONS */
-.nav-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .btn {
   padding: 6px 14px;
   border-radius: 20px;

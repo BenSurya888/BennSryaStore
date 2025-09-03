@@ -23,26 +23,23 @@
         <img src="{% static 'store/img/logooo.png' %}" alt="BennSryaStore Logo" class="logo-img">
       </a>
 
-<div class="search-toggle-wrapper">
-  <!-- Search -->
-  <form class="search-form" action="." method="get">
-    <input type="text" name="q" placeholder="Search..." aria-label="Search">
-  </form>
+      <div class="search-toggle-wrapper">
+        <!-- Search -->
+        <form class="search-form" action="." method="get">
+          <input type="text" name="q" placeholder="Search..." aria-label="Search">
+        </form>
 
-  <!-- Toggle Mobile -->
-  <div class="mobile-toggle" id="mobileToggle">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
+        <!-- Toggle Mobile -->
+        <div class="mobile-toggle" id="mobileToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
 
       <!-- Main Navigation -->
       <nav class="main-nav">
         <a href="{% url 'bensryaa:index' %}">Home</a>
-        <a href="{% url 'bensryaa:transaction_history' %}">Riwayat Transaksi</a>
-        <a href="{% url 'bensryaa:check_order' %}">Cek Pesanan</a>
-
         {% if user.is_authenticated %}
           <a href="{% url 'bensryaa:logout' %}">Logout</a>
           <a href="{% url 'bensryaa:profile' %}">👤 Profile</a>
@@ -62,7 +59,7 @@
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="container">
-      Copyright © {{ now|date:"Y" }} BennSryaStore. All Rights Reserved
+      Copyright © {% now "Y" %} BennSryaStore. All Rights Reserved
     </div>
   </footer>
 
