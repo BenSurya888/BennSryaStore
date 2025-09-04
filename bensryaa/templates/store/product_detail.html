@@ -1,0 +1,137 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ object.brand }} - BennSrya Store{% endblock %}
+
+{% block content %}
+<section class="product-detail container">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="{% url 'bensryaa:index' %}">Home</a> ›
+    <span>{{ object.brand }}</span>
+  </nav>
+
+  <!-- Header produk -->
+  <div class="product-header">
+    <img src="{% static object.image_url %}" alt="{{ object.brand }}">
+    <div class="info">
+      <h1>{{ object.brand }}</h1>
+      <p>{{ object.brand }} Top Up, proses cepat & otomatis.</p>
+    </div>
+  </div>
+
+<!-- Form input user -->
+<div class="user-input">
+  <form method="post" id="orderForm" class="order-form">
+    {% csrf_token %}
+
+    {% for field in input_fields %}
+      <div class="form-group">
+        {% if field == "phone" %}
+          <label>Nomor HP</label>
+          <input type="text" name="phone" id="userInput" placeholder="08xxxx" required>
+        {% elif field == "pln_id" %}
+          <label>ID Pelanggan PLN</label>
+          <input type="text" name="pln_id" id="userInput" placeholder="Contoh: 1234567890" required>
+        {% elif field == "user_id" %}
+          <label>User ID</label>
+          <input type="text" name="user_id" id="userInput" placeholder="Contoh: 123456789" required>
+        {% elif field == "zone_id" %}
+          <label>Zone ID</label>
+          <input type="text" name="zone_id" id="userInput" placeholder="Contoh: 1234" required>
+        {% elif field == "server_id" %}
+          <label>Server ID</label>
+          <input type="text" name="server_id" id="userInput" placeholder="Contoh: 5678" required>
+        {% elif field == "customer_id" %}
+          <label>ID Pelanggan</label>
+          <input type="text" name="customer_id" id="userInput" placeholder="Contoh: 987654321" required>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <!-- Hidden untuk simpan varian -->
+    <input type="hidden" name="variant_code" id="variantCode">
+
+    <!-- Tombol beli -->
+    <div class="form-actions">
+      <button type="submit" id="buyBtn" class="buy-submit" style="display:none;">
+        🛒 Beli Sekarang
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- Daftar varian -->
+{% for category, items in grouped_variants.items %}
+  <div class="variant-list {% if forloop.first %}active{% endif %}" data-category="{{ category }}">
+    <ul>
+      {% for variant in items %}
+        <li class="variant-item" data-code="{{ variant.code }}">
+          <div class="v-info">
+            <span class="v-name">{{ variant.name }}</span>
+            <span class="v-price">{{ variant.price|rupiah }}</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}
+</section>
+
+<!-- Script JS -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".tab-btn");
+    const lists = document.querySelectorAll(".variant-list");
+    const buyBtn = document.getElementById("buyBtn");
+    const variantCode = document.getElementById("variantCode");
+    const form = document.getElementById("orderForm");
+    const userInput = document.getElementById("userInput");
+
+    // Tab handler
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        lists.forEach(l => l.classList.remove("active"));
+        tab.classList.add("active");
+        const category = tab.dataset.category;
+        document.querySelector(`.variant-list[data-category="${category}"]`).classList.add("active");
+      });
+    });
+
+    // Pilih varian
+    document.querySelectorAll(".variant-item").forEach(item => {
+      item.addEventListener("click", () => {
+        // clear selected
+        document.querySelectorAll(".variant-item").forEach(i => i.classList.remove("selected"));
+        item.classList.add("selected");
+
+        // simpan kode varian
+        variantCode.value = item.dataset.code;
+
+        // munculkan tombol beli
+        buyBtn.style.display = "block";
+      });
+    });
+
+    // Submit form
+    form.addEventListener("submit", (e) => {
+      if (!userInput.value) {
+        e.preventDefault();
+        alert("Harap masukkan ID / Nomor dulu.");
+        return;
+      }
+      if (!variantCode.value) {
+        e.preventDefault();
+        alert("Silakan pilih paket dulu.");
+        return;
+      }
+      alert(`Kamu membeli paket ${variantCode.value} untuk ID ${userInput.value}`);
+      // TODO: redirect ke checkout atau submit ke backend
+    });
+  });
+</script>
+{% endblock %}

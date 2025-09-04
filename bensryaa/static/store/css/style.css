@@ -12,7 +12,7 @@ html, body {
   display: flex;
   flex-direction: column;
   font-family: 'Fredoka One', sans-serif;
-  background: #e63601ff;
+  background: #cce7ff;
   color: #222;
 }
 main.container {
@@ -43,7 +43,7 @@ img {
 
 /* HEADER */
 .site-header {
-  background: linear-gradient(90deg, #f51a13ff, #ecb910ff);
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
   padding: 12px 0;
   position: sticky;
   top: 0;
@@ -392,4 +392,252 @@ img {
     top: 50%;
     transform: translateY(-50%);
   }
+}
+/* PRODUCT DETAIL */
+.product-detail {
+  margin: 30px auto;
+}
+
+.product-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.product-header img {
+  width: 150px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.product-header .info h1 {
+  font-size: 1.8rem;
+  color: #0077b6;
+  margin-bottom: 8px;
+}
+
+/* Tabs kategori */
+.variant-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: #0077b6;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s;
+}
+
+.tab-btn:hover {
+  background: #005f8a;
+}
+
+.tab-btn.active {
+  background: #00b4d8;
+}
+
+/* Daftar varian */
+.variant-list {
+  display: none;
+}
+
+.variant-list.active {
+  display: block;
+}
+
+.variant-list ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.variant-list li {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.variant-list li .v-price {
+  color: #0077b6;
+  font-weight: 600;
+}
+.variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.variant-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.variant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.variant-card h3 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.variant-card .v-price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #0077b6;
+  margin-bottom: 10px;
+}
+
+.btn-buy {
+  margin-top : 25px;
+  background: #0077b6;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-buy:hover {
+  background: #005f8a;
+}
+/* ===== FORM STYLING ===== */
+.order-form {
+  margin: 20px 0;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+  outline: none;
+}
+
+/* ===== TOMBOL BELI ===== */
+.form-actions {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.buy-submit {
+  display: inline-block;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+.buy-submit:hover {
+  background: linear-gradient(135deg, #0056b3, #00408d);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.buy-submit:active {
+  transform: scale(0.96);
+}
+
+/* ===== VARIAN LIST ===== */
+.variant-item {
+  cursor: pointer;
+  padding: 14px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variant-item:hover {
+  border-color: #007bff;
+  background: #f8faff;
+}
+
+.variant-item.selected {
+  border: 2px solid #007bff;
+  background: #eef6ff;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .order-form {
+    padding: 16px;
+  }
+
+  .buy-submit {
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+  }
+
+  .variant-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .v-info {
+    margin-bottom: 6px;
+  }
+}
+/* Animasi Fade + Slide */
+.buy-submit {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+.buy-submit.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }

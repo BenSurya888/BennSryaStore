@@ -17,6 +17,6 @@ urlpatterns = [
 
     # Produk & order
     path("", IndexView.as_view(), name="index"),
-    path("product/<slug:code>/", ProductDetailView.as_view(), name="product_detail"),
+    path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
 
 ]

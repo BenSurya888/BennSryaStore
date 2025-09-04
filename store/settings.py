@@ -34,7 +34,7 @@ DIGIFLAZZ_SIGN = digiflazz_sign()
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",

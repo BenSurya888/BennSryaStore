@@ -31,14 +31,10 @@
 <section class="product-grid container">
   {% for product in object_list %}
     <article class="card">
-      <a href="{% url 'bensryaa:product_detail' product.code %}">
-        {% if product.image_url %}
-          <img src="{% static product.image_url %}" alt="{{ product.name }}">
-        {% else %}
-          <img src="{% static 'store/img/placeholder.png' %}" alt="{{ product.name }}">
-        {% endif %}
+      <a href="{% url 'bensryaa:product_detail' product.id %}">
+        <img src="{% static product.image_url %}" alt="{{ product.brand }}">
         <div class="meta">
-          <h3>{{ product.name }}</h3>
+          <h3>{{ product.brand }}</h3>
         </div>
       </a>
     </article>
@@ -46,6 +42,7 @@
     <p>Tidak ada produk tersedia.</p>
   {% endfor %}
 </section>
+
 
 
 {% endblock %}
