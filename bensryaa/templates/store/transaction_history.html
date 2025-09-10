@@ -1,41 +1,60 @@
 {% extends 'store/base.html' %}
-{% load static %}
+{% load custom_filters %}
 
-{% block title %}Riwayat Transaksi - BennSrya Store{% endblock %}
+{% block title %}Riwayat Transaksi{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h1 class="text-glow">Riwayat Transaksi</h1>
+<section class="container transactions">
+  <h1>📜 Riwayat Transaksi</h1>
 
-  {% if transactions %}
-    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
-      <thead style="background:var(--accent);color:white;">
-        <tr>
-          <th style="padding:10px;">ID</th>
-          <th>Ref ID</th>
-          <th>Produk</th>
-          <th>Tanggal</th>
-          <th>Status</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for tx in transactions %}
-        <tr style="text-align:center;border-bottom:1px solid #ccc;">
-          <td style="padding:10px;">
-            <a href="{% url 'bensryaa:order_detail' tx.id %}">{{ tx.id }}</a>
-          </td>
-          <td>{{ tx.ref_id }}</td>
-          <td>{{ tx.product.title }}</td>
-          <td>{{ tx.created_at|date:"d M Y H:i" }}</td>
-          <td>{{ tx.get_status_display }}</td>
-          <td>Rp {{ tx.price }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  {% if orders %}
+  <table class="transactions-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Produk</th>
+        <th>Paket</th>
+        <th>Harga</th>
+        <th>Tujuan</th>
+        <th>Status</th>
+        <th>Tanggal</th>
+        <th>Bukti</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ order.product_variant.product.brand }}</td>
+        <td>{{ order.product_variant.name }}</td>
+        <td>{{ order.amount|rupiah }}</td>
+        <td>{{ order.target_id }}</td>
+        <td>
+          {% if order.status == "pending" %}
+            <span class="status pending">⏳ Pending</span>
+          {% elif order.status == "paid" %}
+            <span class="status paid">💰 Dibayar</span>
+          {% elif order.status == "success" %}
+            <span class="status success">✅ Sukses</span>
+          {% elif order.status == "failed" %}
+            <span class="status failed">❌ Gagal</span>
+          {% endif %}
+        </td>
+        <td>{{ order.created_at|date:"d M Y H:i" }}</td>
+        <td>
+          {% if order.payment_proof %}
+            <a href="{{ order.payment_proof.url }}" target="_blank" class="btn">📷 Lihat</a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   {% else %}
-    <div class="placeholder">Belum ada transaksi</div>
+  <p>Belum ada transaksi.</p>
   {% endif %}
-</div>
+</section>
+
 {% endblock %}

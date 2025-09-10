@@ -1,0 +1,54 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Pembayaran - Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<section class="container payment-page">
+  <h1>🧾 Konfirmasi Pesanan</h1>
+
+  <!-- Ringkasan order -->
+  <div class="order-summary card">
+    <h2>Ringkasan Pesanan</h2>
+    <p><strong>Produk:</strong> {{ order.product_variant.product.brand }}</p>
+    <p><strong>Kategori:</strong> {{ order.product_variant.category }}</p>
+    <p><strong>Paket:</strong> {{ order.product_variant.name }}</p>
+    <p><strong>Harga:</strong> {{ order.amount|rupiah }}</p>
+    <p><strong>Tujuan:</strong> {{ order.target_id }}</p>
+    {% if order.server_id %}
+      <p><strong>Server ID:</strong> {{ order.server_id }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Instruksi pembayaran -->
+  <div class="payment-instructions card">
+    <h2>Instruksi Pembayaran</h2>
+    <p>Silakan transfer ke salah satu rekening/ewallet berikut:</p>
+    <ul>
+      <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
+      <li><strong>DANA:</strong> 081907444304 a.n BennSrya</li>
+      <li><strong>GOPAY:</strong> 081907444304 a.n BennSrya</li>
+    </ul>
+    <p class="note">Setelah transfer, upload bukti pembayaran di bawah ini.</p>
+  </div>
+
+  <!-- Upload bukti -->
+  <div class="upload-proof card">
+    <h2>Upload Bukti Pembayaran</h2>
+    <form method="post" enctype="multipart/form-data" class="proof-form">
+      {% csrf_token %}
+      <input type="file" name="proof" id="proofInput" required>
+      <button type="submit" class="btn">📤 Upload Bukti</button>
+    </form>
+
+    {% if order.payment_proof %}
+      <p><strong>Bukti yang sudah diupload:</strong></p>
+      <a href="{{ order.payment_proof.url }}" target="_blank">
+        <img src="{{ order.payment_proof.url }}" alt="Bukti pembayaran" class="proof-preview">
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

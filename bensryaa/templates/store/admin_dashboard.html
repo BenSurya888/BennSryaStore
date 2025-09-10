@@ -1,0 +1,93 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Admin - BennSrya{% endblock %}
+
+{% block content %}
+<section class="admin-dashboard container">
+  <h1>📊 Dashboard Admin</h1>
+  <p>Halo {{ user.username }}, selamat datang di panel admin.</p>
+
+  <!-- Statistik ringkas -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h2>{{ total_users }}</h2>
+      <p>User Terdaftar</p>
+    </div>
+    <div class="stat-card">
+      <h2>{{ total_orders }}</h2>
+      <p>Total Order</p>
+    </div>
+    <div class="stat-card">
+      <h2>{{ pending_orders }}</h2>
+      <p>Order Pending</p>
+    </div>
+    <div class="stat-card">
+      <h2>{{ total_products }}</h2>
+      <p>Produk</p>
+    </div>
+  </div>
+
+  <!-- Aksi cepat -->
+  <div class="quick-actions">
+    <h2>Aksi Cepat</h2>
+    <div class="action-buttons">
+      <a href="{% url 'bensryaa:sync_products_from_api' %}" class="btn">🔄 Sync Produk</a>
+      <a href="#" class="btn">📦 Kelola Order</a>
+      <a href="#" class="btn">👥 Kelola User</a>
+    </div>
+  </div>
+
+  <!-- Order terbaru -->
+  <div class="latest-orders">
+    <h2>📌 Order Terbaru</h2>
+    <table>
+      <thead>
+  <tr>
+    <th>ID</th>
+    <th>User</th>
+    <th>Produk</th>
+    <th>Status</th>
+    <th>Tanggal</th>
+    <th>Bukti</th>
+    <th>Aksi</th>
+  </tr>
+</thead>
+<tbody>
+  {% for order in recent_orders %}
+  <tr>
+    <td>#{{ order.id }}</td>
+    <td>{{ order.user.username }}</td>
+    <td>{{ order.product_variant.name }}</td>
+    <td>{{ order.status }}</td>
+    <td>{{ order.created_at|date:"d M Y H:i" }}</td>
+    <td>
+      {% if order.payment_proof %}
+        <a href="{{ order.payment_proof.url }}" target="_blank" class="btn">📷 Lihat</a>
+      {% else %}
+        Belum ada
+      {% endif %}
+    </td>
+    <td>
+      {% if order.status == "pending" %}
+        <form method="post" action="{% url 'bensryaa:update_order_status' order.id %}">
+          {% csrf_token %}
+          <button type="submit" name="status" value="paid" class="btn">✅ Mark Paid</button>
+          <button type="submit" name="status" value="failed" class="btn">❌ Fail</button>
+        </form>
+      {% else %}
+        -
+      {% endif %}
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="7">Belum ada order.</td>
+  </tr>
+  {% endfor %}
+</tbody>
+
+    </table>
+  </div>
+</section>
+{% endblock %}

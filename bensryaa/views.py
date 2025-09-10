@@ -1,15 +1,53 @@
 from django.views.generic import ListView, DetailView
-from django.shortcuts import redirect, render
-from .models import Product,ProductVariant
+from django.shortcuts import redirect, render,get_object_or_404
+from .models import Product,ProductVariant,Order
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.conf import settings
+from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from .helpers.forms_mapping import CATEGORY_INPUTS, GAME_OVERRIDES
 import requests
+
+@login_required
+def create_order(request):
+    if request.method == "POST":
+        variant_code = request.POST.get("variant_code")
+        target_id = request.POST.get("target_id")
+        server_id = request.POST.get("server_id", "")
+
+        variant = get_object_or_404(ProductVariant, code=variant_code)
+
+        order = Order.objects.create(
+            user=request.user,
+            product_variant=variant,
+            target_id=target_id,
+            server_id=server_id if server_id else None,
+            amount=variant.price,
+            status="pending",
+        )
+        return redirect("bensryaa:payment_page", order_id=order.id)
+
+    return redirect("bensryaa:index")
+
+
+@login_required
+def payment_page(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if request.method == "POST":
+        proof = request.FILES.get("proof")
+        if proof:
+            order.payment_proof = proof
+            order.status = "pending"  # tetap pending, admin yang konfirmasi
+            order.save()
+            messages.success(request, "Bukti pembayaran berhasil diupload. Tunggu konfirmasi admin.")
+            return redirect("bensryaa:payment_page", order_id=order.id)
+
+    return render(request, "store/payment_page.html", {"order": order})
 
 class ProductDetailView(DetailView):
     model = Product
@@ -116,13 +154,46 @@ def login_view(request):
         if user is not None:
             auth_login(request, user)
             messages.success(request, f"Selamat datang {username}!")
-            return redirect("bensryaa:index")
+
+            # bedakan redirect
+            if user.is_staff:  # admin
+                return redirect("bensryaa:admin_dashboard")
+            else:  # user biasa
+                return redirect("bensryaa:index")
         else:
             messages.error(request, "Username atau password salah.")
             return redirect("bensryaa:login")
 
     return render(request, "registration/login.html")
 
+@staff_member_required
+def admin_dashboard(request):
+    total_users = User.objects.count()
+    total_orders = Order.objects.count()
+    pending_orders = Order.objects.filter(status="pending").count()
+    total_products = Product.objects.count()
+
+    recent_orders = Order.objects.select_related("user", "product_variant").order_by("-created_at")[:10]
+
+    return render(request, "store/admin_dashboard.html", {
+        "total_users": total_users,
+        "total_orders": total_orders,
+        "pending_orders": pending_orders,
+        "total_products": total_products,
+        "recent_orders": recent_orders,
+    })
+
+
+@staff_member_required
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == "POST":
+        status = request.POST.get("status")
+        if status in ["paid", "success", "failed"]:
+            order.status = status
+            order.save()
+            messages.success(request, f"Order #{order.id} berhasil diupdate ke {status}.")
+    return redirect("bensryaa:admin_dashboard")
 
 def logout_view(request):
     auth_logout(request)
@@ -146,6 +217,10 @@ class IndexView(ListView):
         if category:
             qs = qs.filter(variants__category__icontains=category).distinct()
         return qs
+@login_required
+def transaction_history(request):
+    orders = Order.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "store/transaction_history.html", {"orders": orders})
 
 
 
