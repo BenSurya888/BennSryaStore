@@ -39,6 +39,7 @@ class Order(models.Model):
     )
     payment_proof = models.ImageField(upload_to="payment_proofs/", blank=True, null=True)  # 🆕
     created_at = models.DateTimeField(auto_now_add=True)
+    ref_id = models.CharField(max_length=100, null=True, blank=True)  # untuk tracking ke Digiflazz
 
     def __str__(self):
         return f"Order #{self.id} - {self.product_variant.name}"

@@ -13,31 +13,28 @@
     <span>{{ object.brand }}</span>
   </nav>
 
-  <!-- Header produk -->
-  <div class="product-header">
-    <img src="{% static object.image_url %}" alt="{{ object.brand }}">
-    <div class="info">
-      <h1>{{ object.brand }}</h1>
-      <p>{{ object.brand }} Top Up, proses cepat & otomatis.</p>
-    </div>
+ <div class="product-header">
+  <img src="{{ brand_logo }}" alt="{{ object.brand }}" class="product-logo">
+  <div class="info">
+    <h1>{{ object.brand }}</h1>
+    <p>{{ object.brand }} Top Up, proses cepat & otomatis.</p>
   </div>
-
+</div>
   <!-- Form order -->
   <form method="post" action="{% url 'bensryaa:create_order' %}" id="orderForm">
   {% csrf_token %}
-    <!-- Input user -->
-    <div class="user-input">
-      {% if default_category == "pulsa" or default_category == "data" %}
-        <input type="text" id="userInput" name="target_id" placeholder="Nomor HP" required>
-      {% elif default_category == "pln" %}
-        <input type="text" id="userInput" name="target_id" placeholder="ID Pelanggan PLN" required>
-      {% elif default_category == "game" %}
-        <input type="text" id="userInput" name="target_id" placeholder="User ID" required>
-        <input type="text" name="server_id" placeholder="Server ID (opsional)">
-      {% else %}
-        <input type="text" id="userInput" name="target_id" placeholder="ID / Nomor" required>
-      {% endif %}
-    </div>
+ <div class="user-input">
+  {% for field in input_fields %}
+    <input
+      type="{{ field.type }}"
+      name="{{ field.name }}"
+      id="{{ field.name }}"
+      placeholder="{{ field.placeholder }}"
+      {% if field.required %}required{% endif %}
+    >
+  {% endfor %}
+</div>
+
 
     <!-- Tab kategori -->
     <div class="variant-tabs">
@@ -85,6 +82,7 @@
     const variantCode = document.getElementById("variantCode");
     const form = document.getElementById("orderForm");
     const userInput = document.getElementById("userInput");
+    const serverInput = document.querySelector("input[name='server_id']"); // kalau ada server input
 
     // Tab handler
     tabs.forEach(tab => {
@@ -107,7 +105,7 @@
       });
     });
 
-    // Validasi submit
+    // Validasi & konfirmasi sebelum submit
     form.addEventListener("submit", (e) => {
       if (!userInput.value) {
         e.preventDefault();
@@ -117,6 +115,15 @@
       if (!variantCode.value) {
         e.preventDefault();
         alert("Silakan pilih paket dulu.");
+        return;
+      }
+
+      // Tambahkan konfirmasi manual
+      const serverText = serverInput ? `Server: ${serverInput.value || '-'}\n` : '';
+      const confirmMsg = `Pastikan data kamu benar:\nID: ${userInput.value}\n${serverText}Lanjutkan pembelian?`;
+
+      if (!confirm(confirmMsg)) {
+        e.preventDefault(); // batalkan submit kalau user pilih cancel
         return;
       }
     });

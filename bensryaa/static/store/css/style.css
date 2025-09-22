@@ -66,28 +66,68 @@ img {
 .logo-img:hover {
   transform: scale(1.05);
 }
-
-/* SEARCH */
+/* === SEARCH FORM STYLING === */
 .search-form {
+  position: relative;
   flex: 1;
-  margin: 0 15px;
+  max-width: 280px;
 }
 
 .search-form input {
   width: 100%;
-  max-width: 250px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  transition: box-shadow 0.3s ease;
+  padding: 10px 36px 10px 14px;
+  border-radius: 30px;
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s, transform 0.2s;
 }
 
 .search-form input:focus {
   outline: none;
-  box-shadow: 0 0 8px rgba(0, 119, 182, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.2);
+  transform: scale(1.02);
+}
+/* Dropdown hasil */
+.search-results {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: none;
+  z-index: 999;
 }
 
-/* DESKTOP NAV BACKGROUND */
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-result-item:hover {
+  background: #f1faff;
+}
+
+.search-result-item img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.search-result-item span {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 /* DESKTOP NAV BACKGROUND */
 .main-nav {
   display: flex;
@@ -268,38 +308,54 @@ img {
   gap: 20px;
 }
 
+/* Product card modern */
 .card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
 }
 
 .card img {
-  width: 100%;
-  border-bottom: 1px solid #eee;
+  max-height: 100px;
+  object-fit: contain;
+  margin: 20px auto;
 }
+
+.card:hover {
+  transform: translateY(-8px) translateX(4px); /* geser kanan dikit */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.load-more-wrapper {
+  text-align: center;
+  margin: 30px 0;
+}
+
+#loadMoreBtn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #00b4d8, #0077b6);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#loadMoreBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
 
 .card .meta {
   padding: 12px;
   text-align: center;
-}
-
-/* FOOTER */
-.site-footer {
-  background: linear-gradient(90deg, #4facfe, #00f2fe);
-  color: #222;
-  padding: 18px;
-  text-align: center;
-  font-size: 0.9rem;
-  margin-top: auto;
-  width: 100%;
 }
 
 /* MEDIA QUERIES */
@@ -924,4 +980,81 @@ img {
   font-size: 0.85rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 15px;
+}
+/* Sosmed di footer */
+.footer-social {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+.footer-social a {
+  font-size: 1.5rem;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.footer-social a:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+.qris-box {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.qris-img {
+  max-width: 250px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
+  background: #fff;
+}
+.btn-download {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-download:hover {
+  background-color: #0056b3;
+}
+.category-section {
+  margin: 40px 0;
+}
+
+.category-section h2 {
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+  color: #0077b6;
+}
+
+.product-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 12px;
+}
+
+.product-row::-webkit-scrollbar {
+  height: 8px;
+}
+.product-row::-webkit-scrollbar-thumb {
+  background: #0077b6;
+  border-radius: 10px;
+}
+
+.product-row .card {
+  flex: 0 0 180px; /* lebar tetap */
+  scroll-snap-align: start;
+}
+
+.card.hidden {
+  display: none;
 }

@@ -19,6 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DIGIFLAZZ_USERNAME = "sikofeDbNPOD"
 DIGIFLAZZ_API_KEY = "dev-f3327c10-8704-11f0-8208-63d7938d60d9"
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 

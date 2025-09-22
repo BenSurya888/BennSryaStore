@@ -22,16 +22,28 @@
   </div>
 
   <!-- Instruksi pembayaran -->
-  <div class="payment-instructions card">
-    <h2>Instruksi Pembayaran</h2>
-    <p>Silakan transfer ke salah satu rekening/ewallet berikut:</p>
-    <ul>
-      <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
-      <li><strong>DANA:</strong> 081907444304 a.n BennSrya</li>
-      <li><strong>GOPAY:</strong> 081907444304 a.n BennSrya</li>
-    </ul>
-    <p class="note">Setelah transfer, upload bukti pembayaran di bawah ini.</p>
+<div class="payment-instructions card">
+  <h2>Instruksi Pembayaran</h2>
+  <p>Silakan transfer ke salah satu rekening/ewallet berikut:</p>
+  <ul>
+    <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
+    <li><strong>DANA:</strong> 081907444304 a.n BennSrya</li>
+    <li><strong>GOPAY:</strong> 081907444304 a.n BennSrya</li>
+  </ul>
+
+  <h3>Pembayaran via QRIS</h3>
+  <p>Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
+  <div class="qris-box">
+    <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="qris-img">
+    <br>
+    <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn btn-download">
+      📥 Download QRIS
+    </a>
   </div>
+
+  <p class="note">Setelah transfer, upload bukti pembayaran di bawah ini.</p>
+</div>
+
 
   <!-- Upload bukti -->
   <div class="upload-proof card">

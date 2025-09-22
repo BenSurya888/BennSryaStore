@@ -36,13 +36,10 @@
         <div class="search-toggle-wrapper">
           <!-- Search -->
           <form class="search-form" action="." method="get">
-            <input
-              type="text"
-              name="q"
-              placeholder="Search..."
-              aria-label="Search"
-            />
-          </form>
+  <input type="text" name="q" id="searchInput" placeholder="Cari produk..." value="{{ search_query|default:'' }}" autocomplete="off">
+  <div id="searchResults" class="search-results"></div>
+</form>
+
 
           <!-- Toggle Mobile -->
           <div class="mobile-toggle" id="mobileToggle">
@@ -62,8 +59,7 @@
           <a href="{% url 'bensryaa:admin_dashboard' %}">📊 Dashboard</a>
           {% else %}
           <a href="{% url 'bensryaa:transaction_history' %}">🧾 Riwayat</a>
-          {% endif %} 
-          {% else %}
+          {% endif %} {% else %}
           <a href="{% url 'bensryaa:register' %}">Daftar</a>
           <a href="{% url 'bensryaa:login' %}">Login</a>
           {% endif %}
@@ -75,52 +71,61 @@
     <main class="container">{% block content %}{% endblock %}</main>
 
     <!-- FOOTER -->
-<footer class="site-footer">
-  <div class="container footer-grid">
-    
-    <!-- Brand Info -->
-    <div class="footer-brand">
-      <img src="{% static 'store/img/logooo.png' %}" alt="BennSryaStore Logo">
-      <p>Tempat top up game, pulsa, PLN, dan e-money terpercaya. Cepat ⚡ Aman 🔒 Praktis ✅</p>
-    </div>
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <!-- Brand Info -->
+        <div class="footer-brand">
+          <img
+            src="{% static 'store/img/logooo.png' %}"
+            alt="BennSryaStore Logo"
+          />
+          <p>
+            Tempat top up game, pulsa, PLN, dan e-money terpercaya. Cepat ⚡
+            Aman 🔒 Praktis ✅
+          </p>
+        </div>
 
-    <!-- Quick Links -->
-    <div class="footer-links">
-      <h3>Menu</h3>
-      <ul>
-        <li><a href="{% url 'bensryaa:index' %}">Home</a></li>
-        {% if user.is_authenticated %}
-          {% if user.is_staff %}
-            <li><a href="{% url 'bensryaa:admin_dashboard' %}">Dashboard Admin</a></li>
-          {% else %}
-            <li><a href="{% url 'bensryaa:transaction_history' %}">Riwayat</a></li>
-          {% endif %}
-          <li><a href="{% url 'bensryaa:profile' %}">Profile</a></li>
-          <li><a href="{% url 'bensryaa:logout' %}">Logout</a></li>
-        {% else %}
-          <li><a href="{% url 'bensryaa:register' %}">Daftar</a></li>
-          <li><a href="{% url 'bensryaa:login' %}">Login</a></li>
-        {% endif %}
-      </ul>
-    </div>
+        <!-- Quick Links -->
+        <div class="footer-links">
+          <h3>Menu</h3>
+          <ul>
+            <li><a href="{% url 'bensryaa:index' %}">Home</a></li>
+            {% if user.is_authenticated %} {% if user.is_staff %}
+            <li>
+              <a href="{% url 'bensryaa:admin_dashboard' %}">Dashboard Admin</a>
+            </li>
+            {% else %}
+            <li>
+              <a href="{% url 'bensryaa:transaction_history' %}">Riwayat</a>
+            </li>
+            {% endif %}
+            <li><a href="{% url 'bensryaa:profile' %}">Profile</a></li>
+            <li><a href="{% url 'bensryaa:logout' %}">Logout</a></li>
+            {% else %}
+            <li><a href="{% url 'bensryaa:register' %}">Daftar</a></li>
+            <li><a href="{% url 'bensryaa:login' %}">Login</a></li>
+            {% endif %}
+          </ul>
+        </div>
 
-    <!-- Contact -->
-    <div class="footer-contact">
-      <h3>Kontak</h3>
-      <ul>
-        <li>📧 akbarwijayabensurya@gmail.com</li>
-        <li>📱 0895-1567-5014</li>
-        <li>📍 Jl.Trunajaya-Krebet Senggrong-Bululawang (65171)-Malang-Indonesia</li>
-      </ul>
-    </div>
+        <!-- Contact -->
+        <div class="footer-contact">
+          <h3>Kontak</h3>
+          <ul>
+            <li>📧 akbarwijayabensurya@gmail.com</li>
+            <li>📱 0895-1567-5014</li>
+            <li>
+              📍 Jl.Trunajaya-Krebet Senggrong-Bululawang
+              (65171)-Malang-Indonesia
+            </li>
+          </ul>
+        </div>
+      </div>
 
-  </div>
-
-  <div class="footer-bottom">
-    <p>Copyright © {% now "Y" %} BennSryaStore. All Rights Reserved.</p>
-  </div>
-</footer>
-
+      <div class="footer-bottom">
+        <p>Copyright © {% now "Y" %} BennSryaStore. All Rights Reserved.</p>
+      </div>
+    </footer>
 
     <!-- Script for Hamburger -->
     <script>
@@ -131,6 +136,41 @@
         mobileToggle.classList.toggle("active");
         nav.classList.toggle("active");
       });
+      const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+
+searchInput.addEventListener("input", async () => {
+  const query = searchInput.value.trim();
+  if (query.length < 2) {
+    searchResults.style.display = "none";
+    return;
+  }
+
+  const response = await fetch(`/search-api/?q=${encodeURIComponent(query)}`);
+  const data = await response.json();
+
+  if (data.results.length > 0) {
+    searchResults.innerHTML = data.results
+      .map(item => `
+        <div class="search-result-item" onclick="window.location.href='${item.url}'">
+          <img src="${item.logo_url}" alt="${item.brand}">
+          <span>${item.brand}</span>
+        </div>
+      `)
+      .join("");
+    searchResults.style.display = "block";
+  } else {
+    searchResults.innerHTML = `<div class="search-result-item">Tidak ada hasil</div>`;
+    searchResults.style.display = "block";
+  }
+});
+
+// klik di luar → sembunyikan
+document.addEventListener("click", (e) => {
+  if (!searchResults.contains(e.target) && e.target !== searchInput) {
+    searchResults.style.display = "none";
+  }
+});
     </script>
   </body>
 </html>

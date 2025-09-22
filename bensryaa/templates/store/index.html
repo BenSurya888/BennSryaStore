@@ -3,7 +3,6 @@
 {% block title %}Home - BennSrya{% endblock %}
 
 {% block content %}
-<!-- HERO SECTION -->
 <section class="hero">
   <div class="hero-inner container">
     <div class="hero-text">
@@ -17,32 +16,62 @@
   </div>
 </section>
 
-<!-- FILTER BAR -->
-<section class="filter-bar container">
-  <a href="?" class="filter-btn {% if not request.GET.category %}active{% endif %}">Semua</a>
-  <a href="?category=game" class="filter-btn {% if request.GET.category == 'game' %}active{% endif %}">Game</a>
-  <a href="?category=pulsa" class="filter-btn {% if request.GET.category == 'pulsa' %}active{% endif %}">Pulsa</a>
-  <a href="?category=pln" class="filter-btn {% if request.GET.category == 'pln' %}active{% endif %}">PLN</a>
-  <a href="?category=e-money" class="filter-btn {% if request.GET.category == 'e-money' %}active{% endif %}">E-Money</a>
+{% for category, product_list in products_by_category.items %}
+<section class="category-section container">
+  <h2 class="category-title">{{ category|title }}</h2>
+  <div class="product-carousel" id="carousel-{{ category }}">
+    {% for product in product_list %}
+      <article class="card" data-category="{{ product.category }}">
+        <a href="{% url 'bensryaa:product_detail' product.id %}">
+          <img src="{{ product.logo_url }}" alt="{{ product.brand }}">
+          <div class="meta">
+            <h3>{{ product.brand }}</h3>
+          </div>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+  <div class="load-more-wrapper">
+    <button class="load-more-btn" data-category="{{ category }}">⬇️ Load More</button>
+  </div>
 </section>
+{% endfor %}
 
+<style>
+.product-carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 1rem;
+}
+.product-carousel .card {
+  flex: 0 0 auto;
+  width: 250px;
+  scroll-snap-align: start;
+}
+</style>
 
-<!-- PRODUCT GRID -->
-<section class="product-grid container">
-  {% for product in object_list %}
-    <article class="card">
-      <a href="{% url 'bensryaa:product_detail' product.id %}">
-        <img src="{% static product.image_url %}" alt="{{ product.brand }}">
-        <div class="meta">
-          <h3>{{ product.brand }}</h3>
-        </div>
-      </a>
-    </article>
-  {% empty %}
-    <p>Tidak ada produk tersedia.</p>
-  {% endfor %}
-</section>
+<script>
+document.querySelectorAll('.category-section').forEach(section => {
+  const category = section.querySelector('.load-more-btn').dataset.category;
+  const cards = section.querySelectorAll('.card');
+  let visibleCount = 6;
+  showCards();
 
+  section.querySelector('.load-more-btn').addEventListener('click', () => {
+    visibleCount += 6;
+    showCards();
+  });
 
-
+  function showCards() {
+    cards.forEach((card, i) => {
+      card.style.display = i < visibleCount ? "block" : "none";
+    });
+    if (visibleCount >= cards.length) {
+      section.querySelector('.load-more-btn').style.display = "none";
+    }
+  }
+});
+</script>
 {% endblock %}

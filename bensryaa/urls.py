@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    IndexView,ProductDetailView,
+    IndexView,ProductDetailView,search_products_api,
     profile,register_view, login_view, logout_view,sync_products_from_api,admin_dashboard,payment_page,create_order,update_order_status,transaction_history
 )
 
@@ -18,6 +18,7 @@ urlpatterns = [
     path("transactions/", transaction_history, name="transaction_history"),
     # Produk & order
     path("", IndexView.as_view(), name="index"),
+    path("search-api/", search_products_api, name="search_api"),
     path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
     path("order/create/", create_order, name="create_order"),
     path("order/<int:order_id>/update/", update_order_status, name="update_order_status"),
