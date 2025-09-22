@@ -11,6 +11,11 @@
       href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap"
       rel="stylesheet"
     />
+    <!-- Adding more Google Fonts for better typography -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Favicon & CSS -->
     <link
@@ -36,10 +41,9 @@
         <div class="search-toggle-wrapper">
           <!-- Search -->
           <form class="search-form" action="." method="get">
-  <input type="text" name="q" id="searchInput" placeholder="Cari produk..." value="{{ search_query|default:'' }}" autocomplete="off">
-  <div id="searchResults" class="search-results"></div>
-</form>
-
+            <input type="text" name="q" id="searchInput" placeholder="Cari produk..." value="{{ search_query|default:'' }}" autocomplete="off">
+            <div id="searchResults" class="search-results"></div>
+          </form>
 
           <!-- Toggle Mobile -->
           <div class="mobile-toggle" id="mobileToggle">
@@ -136,41 +140,42 @@
         mobileToggle.classList.toggle("active");
         nav.classList.toggle("active");
       });
+      
       const searchInput = document.getElementById("searchInput");
-const searchResults = document.getElementById("searchResults");
+      const searchResults = document.getElementById("searchResults");
 
-searchInput.addEventListener("input", async () => {
-  const query = searchInput.value.trim();
-  if (query.length < 2) {
-    searchResults.style.display = "none";
-    return;
-  }
+      searchInput.addEventListener("input", async () => {
+        const query = searchInput.value.trim();
+        if (query.length < 2) {
+          searchResults.style.display = "none";
+          return;
+        }
 
-  const response = await fetch(`/search-api/?q=${encodeURIComponent(query)}`);
-  const data = await response.json();
+        const response = await fetch(`/search-api/?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
 
-  if (data.results.length > 0) {
-    searchResults.innerHTML = data.results
-      .map(item => `
-        <div class="search-result-item" onclick="window.location.href='${item.url}'">
-          <img src="${item.logo_url}" alt="${item.brand}">
-          <span>${item.brand}</span>
-        </div>
-      `)
-      .join("");
-    searchResults.style.display = "block";
-  } else {
-    searchResults.innerHTML = `<div class="search-result-item">Tidak ada hasil</div>`;
-    searchResults.style.display = "block";
-  }
-});
+        if (data.results.length > 0) {
+          searchResults.innerHTML = data.results
+            .map(item => `
+              <div class="search-result-item" onclick="window.location.href='${item.url}'">
+                <img src="${item.logo_url}" alt="${item.brand}">
+                <span>${item.brand}</span>
+              </div>
+            `)
+            .join("");
+          searchResults.style.display = "block";
+        } else {
+          searchResults.innerHTML = `<div class="search-result-item">Tidak ada hasil</div>`;
+          searchResults.style.display = "block";
+        }
+      });
 
-// klik di luar → sembunyikan
-document.addEventListener("click", (e) => {
-  if (!searchResults.contains(e.target) && e.target !== searchInput) {
-    searchResults.style.display = "none";
-  }
-});
+      // klik di luar → sembunyikan
+      document.addEventListener("click", (e) => {
+        if (!searchResults.contains(e.target) && e.target !== searchInput) {
+          searchResults.style.display = "none";
+        }
+      });
     </script>
   </body>
 </html>

@@ -319,7 +319,10 @@ class IndexView(ListView):
             category = first_variant.category if first_variant else "lainnya"
             products_by_category[category].append(p)
 
-        context["products_by_category"] = dict(sorted(products_by_category.items(), key=lambda x: x[0]))
+        context["products_by_category"] = dict(
+        sorted(products_by_category.items(), key=lambda x: len(x[1]), reverse=True)
+        )
+
         context["search_query"] = self.request.GET.get("q", "")
         return context
 

@@ -6,61 +6,155 @@
 
 {% block content %}
 <section class="container payment-page">
-  <h1>🧾 Konfirmasi Pesanan</h1>
+    <h1>🧾 Konfirmasi Pesanan #{{ order.id }}</h1>
 
-  <!-- Ringkasan order -->
-  <div class="order-summary card">
-    <h2>Ringkasan Pesanan</h2>
-    <p><strong>Produk:</strong> {{ order.product_variant.product.brand }}</p>
-    <p><strong>Kategori:</strong> {{ order.product_variant.category }}</p>
-    <p><strong>Paket:</strong> {{ order.product_variant.name }}</p>
-    <p><strong>Harga:</strong> {{ order.amount|rupiah }}</p>
-    <p><strong>Tujuan:</strong> {{ order.target_id }}</p>
-    {% if order.server_id %}
-      <p><strong>Server ID:</strong> {{ order.server_id }}</p>
-    {% endif %}
-  </div>
+    <!-- Ringkasan order -->
+    <div class="payment-card order-summary">
+        <h2>📋 Ringkasan Pesanan</h2>
+        <p><strong>Produk:</strong> {{ order.product_variant.product.brand }}</p>
+        <p><strong>Kategori:</strong> {{ order.product_variant.category }}</p>
+        <p><strong>Paket:</strong> {{ order.product_variant.name }}</p>
+        <p><strong>Harga:</strong> {{ order.amount|rupiah }}</p>
+        <p><strong>Tujuan:</strong> {{ order.target_id }}</p>
+        {% if order.server_id %}
+        <p><strong>Server ID:</strong> {{ order.server_id }}</p>
+        {% endif %}
+        <p><strong>Status:</strong> 
+            {% if order.status == 'pending' %}
+                <span class="status-badge status-pending">Menunggu Pembayaran</span>
+            {% elif order.status == 'paid' %}
+                <span class="status-badge status-paid">Pembayaran Diterima</span>
+            {% elif order.status == 'success' %}
+                <span class="status-badge status-success">Berhasil Diproses</span>
+            {% endif %}
+        </p>
+    </div>
 
-  <!-- Instruksi pembayaran -->
-<div class="payment-instructions card">
-  <h2>Instruksi Pembayaran</h2>
-  <p>Silakan transfer ke salah satu rekening/ewallet berikut:</p>
-  <ul>
-    <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
-    <li><strong>DANA:</strong> 081907444304 a.n BennSrya</li>
-    <li><strong>GOPAY:</strong> 081907444304 a.n BennSrya</li>
-  </ul>
+    <!-- Instruksi pembayaran -->
+    <div class="payment-card payment-instructions">
+        <h2>💳 Instruksi Pembayaran</h2>
+        <p>Silakan transfer ke salah satu rekening/ewallet berikut:</p>
+        <ul>
+            <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
+            <li><strong>DANA:</strong> 081907444304 a.n BennSrya</li>
+            <li><strong>GOPAY:</strong> 081907444304 a.n BennSrya</li>
+        </ul>
 
-  <h3>Pembayaran via QRIS</h3>
-  <p>Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
-  <div class="qris-box">
-    <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="qris-img">
-    <br>
-    <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn btn-download">
-      📥 Download QRIS
-    </a>
-  </div>
+        <h3>🔗 Pembayaran via QRIS</h3>
+        <p>Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
+        <div class="qris-box">
+            <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="qris-img">
+            <br>
+            <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn-download">
+                📥 Download QRIS
+            </a>
+        </div>
 
-  <p class="note">Setelah transfer, upload bukti pembayaran di bawah ini.</p>
-</div>
+        <p class="note">💡 Setelah transfer, upload bukti pembayaran di bawah ini. Pesanan akan diproses setelah pembayaran dikonfirmasi.</p>
+    </div>
 
-
-  <!-- Upload bukti -->
-  <div class="upload-proof card">
-    <h2>Upload Bukti Pembayaran</h2>
-    <form method="post" enctype="multipart/form-data" class="proof-form">
-      {% csrf_token %}
-      <input type="file" name="proof" id="proofInput" required>
-      <button type="submit" class="btn">📤 Upload Bukti</button>
-    </form>
-
-    {% if order.payment_proof %}
-      <p><strong>Bukti yang sudah diupload:</strong></p>
-      <a href="{{ order.payment_proof.url }}" target="_blank">
-        <img src="{{ order.payment_proof.url }}" alt="Bukti pembayaran" class="proof-preview">
-      </a>
-    {% endif %}
-  </div>
+    <!-- Upload bukti -->
+    <div class="payment-card upload-proof">
+        <h2>📤 Upload Bukti Pembayaran</h2>
+        
+        {% if order.payment_proof %}
+            <p><strong>Bukti yang sudah diupload:</strong></p>
+            <a href="{{ order.payment_proof.url }}" target="_blank">
+                <img src="{{ order.payment_proof.url }}" alt="Bukti pembayaran" class="proof-preview">
+            </a>
+            <p class="note">✅ Bukti pembayaran telah diupload. Silakan tunggu konfirmasi admin.</p>
+        {% else %}
+            <form method="post" enctype="multipart/form-data" class="proof-form">
+                {% csrf_token %}
+                <div class="file-input-container">
+                    <label for="proofInput" class="file-input-label">
+                        <i>📁</i>
+                        Klik untuk memilih file atau seret file ke sini
+                    </label>
+                    <input type="file" name="proof" id="proofInput" required>
+                </div>
+                <button type="submit" class="upload-btn">
+                    <span>📤 Upload Bukti</span>
+                </button>
+            </form>
+        {% endif %}
+    </div>
 </section>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+    // Animasi untuk elemen saat di-scroll
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.payment-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        cards.forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Efek untuk input file
+        const fileInput = document.getElementById('proofInput');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const fileName = e.target.files[0]?.name;
+                const label = document.querySelector('.file-input-label');
+                if (fileName) {
+                    label.innerHTML = `<i>📄</i> File dipilih: ${fileName}`;
+                    label.style.background = '#e6f7ff';
+                    label.style.borderColor = '#0077b6';
+                    label.style.color = '#0077b6';
+                }
+            });
+            
+            // Drag and drop functionality
+            const dropArea = document.querySelector('.file-input-container');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.querySelector('.file-input-label').style.background = '#d1e7ff';
+            }
+            
+            function unhighlight() {
+                dropArea.querySelector('.file-input-label').style.background = '#f9f9f9';
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                // Trigger change event
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        }
+    });
+</script>
 {% endblock %}

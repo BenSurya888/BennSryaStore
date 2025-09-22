@@ -8,6 +8,7 @@
   <h1>📜 Riwayat Transaksi</h1>
 
   {% if orders %}
+  <!-- Desktop Table -->
   <table class="transactions-table">
     <thead>
       <tr>
@@ -52,9 +53,81 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <!-- Mobile Cards -->
+  <div class="transaction-cards">
+    {% for order in orders %}
+    <div class="transaction-card">
+      <div class="transaction-row">
+        <strong>ID:</strong> #{{ order.id }}
+      </div>
+      <div class="transaction-row">
+        <strong>Produk:</strong> {{ order.product_variant.product.brand }}
+      </div>
+      <div class="transaction-row">
+        <strong>Paket:</strong> {{ order.product_variant.name }}
+      </div>
+      <div class="transaction-row">
+        <strong>Harga:</strong> {{ order.amount|rupiah }}
+      </div>
+      <div class="transaction-row">
+        <strong>Tujuan:</strong> {{ order.target_id }}
+      </div>
+      <div class="transaction-row">
+        <strong>Status:</strong>
+        {% if order.status == "pending" %}
+          <span class="status pending">⏳ Pending</span>
+        {% elif order.status == "paid" %}
+          <span class="status paid">💰 Dibayar</span>
+        {% elif order.status == "success" %}
+          <span class="status success">✅ Sukses</span>
+        {% elif order.status == "failed" %}
+          <span class="status failed">❌ Gagal</span>
+        {% endif %}
+      </div>
+      <div class="transaction-row">
+        <strong>Tanggal:</strong> {{ order.created_at|date:"d M Y H:i" }}
+      </div>
+      <div class="transaction-row">
+        <strong>Bukti:</strong>
+        {% if order.payment_proof %}
+          <a href="{{ order.payment_proof.url }}" target="_blank" class="btn">📷 Lihat</a>
+        {% else %}
+          -
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% else %}
-  <p>Belum ada transaksi.</p>
+  <div class="empty-state">
+    <p>Belum ada transaksi.</p>
+    <a href="{% url 'bensryaa:index' %}" class="btn">🛍️ Mulai Belanja</a>
+  </div>
   {% endif %}
 </section>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add animation to table rows and cards when they come into view
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  // Observe table rows
+  document.querySelectorAll('.transactions-table tr').forEach(row => {
+    observer.observe(row);
+  });
+  
+  // Observe transaction cards
+  document.querySelectorAll('.transaction-card').forEach(card => {
+    observer.observe(card);
+  });
+});
+</script>
 {% endblock %}

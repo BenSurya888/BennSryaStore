@@ -20,7 +20,7 @@
   <div class="quick-actions">
     <h2>Aksi Cepat</h2>
     <div class="action-buttons">
-      <a href="{% url 'bensryaa:sync_products_from_api' %}" class="btn">🔄 Sync Produk</a>
+      <a href="{% url 'bensryaa:sync_products_from_api' %}" class="btn" id="syncBtn">🔄 Sync Produk</a>
       <a href="#" class="btn">📦 Kelola Order</a>
       <a href="#" class="btn">👥 Kelola User</a>
     </div>
@@ -46,32 +46,32 @@
             <td>#{{ order.id }}</td>
             <td>{{ order.user.username }}</td>
             <td>{{ order.product_variant.name }}</td>
-            <td>{{ order.status }}</td>
+            <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
             <td>{{ order.ref_id|default:"-" }}</td>
             <td>
-              {% if order.status == "success" %}✅ Sukses
-              {% elif order.status == "failed" %}❌ Gagal
-              {% elif order.status == "paid" %}⏳ Diproses
-              {% else %}⏳ Pending{% endif %}
+              {% if order.status == "success" %}<span class="status-badge status-success">✅ Sukses</span>
+              {% elif order.status == "failed" %}<span class="status-badge status-failed">❌ Gagal</span>
+              {% elif order.status == "paid" %}<span class="status-badge status-paid">⏳ Diproses</span>
+              {% else %}<span class="status-badge status-pending">⏳ Pending</span>{% endif %}
             </td>
             <td>{{ order.created_at|date:"d M Y H:i" }}</td>
             <td>
               {% if order.payment_proof %}
-                <a href="{{ order.payment_proof.url }}" target="_blank">📷 Lihat</a>
+                <a href="{{ order.payment_proof.url }}" target="_blank" class="btn small">📷 Lihat</a>
               {% else %}Belum ada{% endif %}
             </td>
             <td>
               {% if order.status == "pending" %}
                 <form method="post" action="{% url 'bensryaa:update_order_status' order.id %}">
                   {% csrf_token %}
-                  <button type="submit" name="status" value="paid" class="btn">✅ Mark Paid</button>
-                  <button type="submit" name="status" value="failed" class="btn">❌ Fail</button>
+                  <button type="submit" name="status" value="paid" class="btn small">✅ Mark Paid</button>
+                  <button type="submit" name="status" value="failed" class="btn small">❌ Fail</button>
                 </form>
               {% else %}-{% endif %}
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="9">Belum ada order.</td></tr>
+          <tr><td colspan="9" style="text-align: center; padding: 20px;">Belum ada order.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -84,20 +84,20 @@
         <div class="order-row"><strong>ID:</strong> #{{ order.id }}</div>
         <div class="order-row"><strong>User:</strong> {{ order.user.username }}</div>
         <div class="order-row"><strong>Produk:</strong> {{ order.product_variant.name }}</div>
-        <div class="order-row"><strong>Status:</strong> {{ order.status }}</div>
+        <div class="order-row"><strong>Status:</strong> <span class="status-badge status-{{ order.status }}">{{ order.status }}</span></div>
         <div class="order-row"><strong>Ref ID:</strong> {{ order.ref_id|default:"-" }}</div>
         <div class="order-row">
           <strong>Status Digiflazz:</strong>
-          {% if order.status == "success" %}✅ Sukses
-          {% elif order.status == "failed" %}❌ Gagal
-          {% elif order.status == "paid" %}⏳ Diproses
-          {% else %}⏳ Pending{% endif %}
+          {% if order.status == "success" %}<span class="status-badge status-success">✅ Sukses</span>
+          {% elif order.status == "failed" %}<span class="status-badge status-failed">❌ Gagal</span>
+          {% elif order.status == "paid" %}<span class="status-badge status-paid">⏳ Diproses</span>
+          {% else %}<span class="status-badge status-pending">⏳ Pending</span>{% endif %}
         </div>
         <div class="order-row"><strong>Tanggal:</strong> {{ order.created_at|date:"d M Y H:i" }}</div>
         <div class="order-row">
           <strong>Bukti:</strong>
           {% if order.payment_proof %}
-            <a href="{{ order.payment_proof.url }}" target="_blank">📷 Lihat</a>
+            <a href="{{ order.payment_proof.url }}" target="_blank" class="btn small">📷 Lihat</a>
           {% else %}Belum ada{% endif %}
         </div>
         <div class="order-row">
@@ -112,65 +112,38 @@
         </div>
       </div>
       {% empty %}
-      <p>Belum ada order.</p>
+      <div class="order-card" style="text-align: center;">
+        <p>Belum ada order.</p>
+      </div>
       {% endfor %}
     </div>
   </div>
 </section>
 
-<style>
-.table-wrapper {
-  overflow-x: auto;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  display: block;
-}
-.responsive-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px;
-}
-.responsive-table th,
-.responsive-table td {
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-.responsive-table th {
-  background: #f8f8f8;
-  position: sticky;
-  top: 0;
-}
-.order-card-list {
-  display: none;
-  margin-top: 15px;
-  flex-direction: column;
-  gap: 12px;
-}
-.order-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  padding: 14px;
-  font-size: 0.9rem;
-}
-.order-row {
-  margin-bottom: 6px;
-}
-.order-row strong {
-  color: #0077b6;
-}
-.btn.small {
-  font-size: 0.8rem;
-  padding: 6px 10px;
-  margin-top: 4px;
-}
-
-/* Mobile: sembunyikan tabel, tampilkan card */
-@media (max-width: 500px) {
-  .table-wrapper { display: none; }
-  .order-card-list { display: flex; }
-}
-</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add loading animation to sync button
+  const syncBtn = document.getElementById('syncBtn');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', function(e) {
+      this.classList.add('syncing');
+      this.innerHTML = '⏳ Memproses...';
+    });
+  }
+  
+  // Add animation to cards when they come into view
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  document.querySelectorAll('.stat-card, .order-card').forEach(card => {
+    observer.observe(card);
+  });
+});
+</script>
 {% endblock %}

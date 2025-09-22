@@ -4,26 +4,35 @@
 
 {% block content %}
 <section class="hero">
-  <div class="hero-inner container">
+  <div class="hero-inner">
     <div class="hero-text">
       <h1>A great fun for everyone from</h1>
       <h2>BennSrya</h2>
       <p>Tempat Top Up Game, App Prem & Belanja Online Terpercaya. Cepat, Aman, dan Praktis!</p>
     </div>
     <div class="hero-image">
-      <img src="{% static 'store/img/hero.png' %}" alt="hero">
+      <img src="{% static 'store/img/hero.png' %}" alt="BennSrya Store">
     </div>
   </div>
 </section>
 
+<!-- Category Navigation -->
+<div class="category-nav container">
+  {% for category in products_by_category.keys %}
+    <button class="category-nav-btn" onclick="scrollToCategory('{{ category }}')">
+      {{ category|title }}
+    </button>
+  {% endfor %}
+</div>
+
 {% for category, product_list in products_by_category.items %}
-<section class="category-section container">
+<section class="category-section" id="category-{{ category }}">
   <h2 class="category-title">{{ category|title }}</h2>
   <div class="product-carousel" id="carousel-{{ category }}">
     {% for product in product_list %}
       <article class="card" data-category="{{ product.category }}">
         <a href="{% url 'bensryaa:product_detail' product.id %}">
-          <img src="{{ product.logo_url }}" alt="{{ product.brand }}">
+          <img src="{{ product.logo_url }}" alt="{{ product.brand }}" loading="lazy">
           <div class="meta">
             <h3>{{ product.brand }}</h3>
           </div>
@@ -31,47 +40,83 @@
       </article>
     {% endfor %}
   </div>
+  {% if product_list|length > 6 %}
   <div class="load-more-wrapper">
-    <button class="load-more-btn" data-category="{{ category }}">⬇️ Load More</button>
+    <button class="load-more-btn" data-category="{{ category }}">
+      <span>⬇️</span> Load More {{ category|title }}
+    </button>
   </div>
+  {% endif %}
 </section>
 {% endfor %}
 
-<style>
-.product-carousel {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 1rem;
-}
-.product-carousel .card {
-  flex: 0 0 auto;
-  width: 250px;
-  scroll-snap-align: start;
-}
-</style>
-
 <script>
-document.querySelectorAll('.category-section').forEach(section => {
-  const category = section.querySelector('.load-more-btn').dataset.category;
-  const cards = section.querySelectorAll('.card');
-  let visibleCount = 6;
-  showCards();
+// Scroll to category function
+function scrollToCategory(category) {
+  const element = document.getElementById('category-' + category);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 
-  section.querySelector('.load-more-btn').addEventListener('click', () => {
+// Load more functionality
+document.querySelectorAll('.category-section').forEach(section => {
+  const category = section.id.replace('category-', '');
+  const cards = section.querySelectorAll('.card');
+  const loadMoreBtn = section.querySelector('.load-more-btn');
+  
+  if (!loadMoreBtn) return;
+  
+  let visibleCount = 6;
+  
+  // Initial show
+  showCards();
+  
+  loadMoreBtn.addEventListener('click', () => {
     visibleCount += 6;
     showCards();
+    
+    // Smooth scroll to the newly shown cards
+    if (visibleCount < cards.length) {
+      cards[visibleCount - 1].scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest',
+        inline: 'start'
+      });
+    }
   });
-
+  
   function showCards() {
     cards.forEach((card, i) => {
       card.style.display = i < visibleCount ? "block" : "none";
     });
+    
     if (visibleCount >= cards.length) {
-      section.querySelector('.load-more-btn').style.display = "none";
+      loadMoreBtn.style.display = "none";
     }
   }
+});
+
+// Add intersection observer for animations
+document.addEventListener('DOMContentLoaded', function() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  // Observe category sections
+  document.querySelectorAll('.category-section').forEach(section => {
+    observer.observe(section);
+  });
+  
+  // Observe cards
+  document.querySelectorAll('.card').forEach(card => {
+    observer.observe(card);
+  });
 });
 </script>
 {% endblock %}

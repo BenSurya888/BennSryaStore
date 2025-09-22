@@ -6,127 +6,184 @@
 
 {% block content %}
 <section class="product-detail container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'bensryaa:index' %}">Home</a>
+        <span>{{ object.brand }}</span>
+    </nav>
 
-  <!-- Breadcrumb -->
-  <nav class="breadcrumb">
-    <a href="{% url 'bensryaa:index' %}">Home</a> ›
-    <span>{{ object.brand }}</span>
-  </nav>
-
- <div class="product-header">
-  <img src="{{ brand_logo }}" alt="{{ object.brand }}" class="product-logo">
-  <div class="info">
-    <h1>{{ object.brand }}</h1>
-    <p>{{ object.brand }} Top Up, proses cepat & otomatis.</p>
-  </div>
-</div>
-  <!-- Form order -->
-  <form method="post" action="{% url 'bensryaa:create_order' %}" id="orderForm">
-  {% csrf_token %}
- <div class="user-input">
-  {% for field in input_fields %}
-    <input
-      type="{{ field.type }}"
-      name="{{ field.name }}"
-      id="{{ field.name }}"
-      placeholder="{{ field.placeholder }}"
-      {% if field.required %}required{% endif %}
-    >
-  {% endfor %}
-</div>
-
-
-    <!-- Tab kategori -->
-    <div class="variant-tabs">
-      {% for category, items in grouped_variants.items %}
-        <button type="button" 
-                class="tab-btn {% if forloop.first %}active{% endif %}" 
-                data-category="{{ category }}">
-          {{ category }}
-        </button>
-      {% endfor %}
+    <!-- Product Header -->
+    <div class="product-header">
+        <img src="{{ brand_logo }}" alt="{{ object.brand }}" class="product-logo">
+        <div class="info">
+            <h1>{{ object.brand }}</h1>
+            <p>{{ object.brand }} Top Up, proses cepat & otomatis.</p>
+        </div>
     </div>
 
-    <!-- Daftar varian -->
-    {% for category, items in grouped_variants.items %}
-      <div class="variant-list {% if forloop.first %}active{% endif %}" data-category="{{ category }}">
-        <ul>
-          {% for variant in items %}
-            <li class="variant-item" data-code="{{ variant.code }}">
-              <span class="v-name">{{ variant.name }}</span>
-              <span class="v-price">{{ variant.price|rupiah }}</span>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endfor %}
+    <!-- Form order -->
+    <form method="post" action="{% url 'bensryaa:create_order' %}" id="orderForm">
+        {% csrf_token %}
+        
+        <!-- User Input Fields -->
+        <div class="user-input">
+            {% for field in input_fields %}
+                <input
+                    type="{{ field.type }}"
+                    name="{{ field.name }}"
+                    id="{{ field.name }}"
+                    placeholder="{{ field.placeholder }}"
+                    {% if field.required %}required{% endif %}
+                    {% if field.pattern %}pattern="{{ field.pattern }}"{% endif %}
+                    {% if field.title %}title="{{ field.title }}"{% endif %}
+                >
+            {% endfor %}
+        </div>
 
-    <!-- Hidden input buat varian terpilih -->
-    <input type="hidden" name="variant_code" id="variantCode">
+        <!-- Tab kategori -->
+        <div class="variant-tabs">
+            {% for category, items in grouped_variants.items %}
+                <button type="button" 
+                        class="tab-btn {% if forloop.first %}active{% endif %}" 
+                        data-category="{{ category }}">
+                    {{ category }}
+                </button>
+            {% endfor %}
+        </div>
 
-    <!-- Tombol beli -->
-    <div class="form-actions">
-      <button type="submit" id="buyBtn" class="buy-submit" style="display:none;">
-        🛒 Beli Sekarang
-      </button>
-    </div>
-  </form>
+        <!-- Daftar varian -->
+        {% for category, items in grouped_variants.items %}
+            <div class="variant-list {% if forloop.first %}active{% endif %}" data-category="{{ category }}">
+                <ul>
+                    {% for variant in items %}
+                        <li class="variant-item" data-code="{{ variant.code }}">
+                            <span class="v-name">{{ variant.name }}</span>
+                            <span class="v-price">{{ variant.price|rupiah }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+
+        <!-- Hidden input buat varian terpilih -->
+        <input type="hidden" name="variant_code" id="variantCode">
+
+        <!-- Tombol beli -->
+        <div class="form-actions">
+            <button type="submit" id="buyBtn" class="buy-submit" style="display:none;">
+                <span>🛒</span> Beli Sekarang
+            </button>
+        </div>
+    </form>
 </section>
+
+<!-- Custom Alert -->
+<div id="customAlert" class="custom-alert"></div>
 
 <!-- Script JS -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const tabs = document.querySelectorAll(".tab-btn");
-    const lists = document.querySelectorAll(".variant-list");
-    const buyBtn = document.getElementById("buyBtn");
-    const variantCode = document.getElementById("variantCode");
-    const form = document.getElementById("orderForm");
-    const userInput = document.getElementById("userInput");
-    const serverInput = document.querySelector("input[name='server_id']"); // kalau ada server input
+    document.addEventListener("DOMContentLoaded", function () {
+        const tabs = document.querySelectorAll(".tab-btn");
+        const lists = document.querySelectorAll(".variant-list");
+        const buyBtn = document.getElementById("buyBtn");
+        const variantCode = document.getElementById("variantCode");
+        const form = document.getElementById("orderForm");
+        const customAlert = document.getElementById("customAlert");
+        
+        // Get all user input fields
+        const userInputs = document.querySelectorAll('.user-input input');
+        
+        // Tab handler
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                tabs.forEach(t => t.classList.remove("active"));
+                lists.forEach(l => l.classList.remove("active"));
+                tab.classList.add("active");
+                const category = tab.dataset.category;
+                document.querySelector(`.variant-list[data-category="${category}"]`).classList.add("active");
+            });
+        });
 
-    // Tab handler
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
-        lists.forEach(l => l.classList.remove("active"));
-        tab.classList.add("active");
-        const category = tab.dataset.category;
-        document.querySelector(`.variant-list[data-category="${category}"]`).classList.add("active");
-      });
+        // Pilih varian
+        document.querySelectorAll(".variant-item").forEach(item => {
+            item.addEventListener("click", () => {
+                document.querySelectorAll(".variant-item").forEach(i => i.classList.remove("selected"));
+                item.classList.add("selected");
+                variantCode.value = item.dataset.code;
+                buyBtn.style.display = "flex";
+                
+                // Add animation to buy button
+                buyBtn.style.animation = "pulse 0.5s ease";
+                setTimeout(() => {
+                    buyBtn.style.animation = "";
+                }, 500);
+            });
+        });
+
+        // Show custom alert
+        function showAlert(message, type = "error") {
+            customAlert.textContent = message;
+            customAlert.style.display = "block";
+            customAlert.style.background = type === "error" ? "#ff4757" : "#2ed573";
+            
+            setTimeout(() => {
+                customAlert.style.display = "none";
+            }, 3000);
+        }
+
+        // Validasi & konfirmasi sebelum submit
+        form.addEventListener("submit", (e) => {
+            let hasEmptyField = false;
+            
+            // Check if any required field is empty
+            userInputs.forEach(input => {
+                if (input.hasAttribute('required') && !input.value.trim()) {
+                    hasEmptyField = true;
+                    input.style.borderColor = "#ff4757";
+                    input.style.animation = "shake 0.5s ease";
+                    
+                    setTimeout(() => {
+                        input.style.animation = "";
+                    }, 500);
+                }
+            });
+            
+            if (hasEmptyField) {
+                e.preventDefault();
+                showAlert("Harap isi semua field yang wajib diisi.");
+                return;
+            }
+            
+            if (!variantCode.value) {
+                e.preventDefault();
+                showAlert("Silakan pilih paket dulu.");
+                return;
+            }
+
+            // Build confirmation message
+            let confirmMsg = "Pastikan data kamu benar:\n\n";
+            
+            userInputs.forEach(input => {
+                const label = input.placeholder || input.name;
+                confirmMsg += `${label}: ${input.value}\n`;
+            });
+            
+            confirmMsg += `\nLanjutkan pembelian?`;
+            
+            // Use custom confirm dialog
+            if (!confirm(confirmMsg)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Remove error style when user starts typing
+        userInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.value.trim()) {
+                    input.style.borderColor = "#e9ecef";
+                }
+            });
+        });
     });
-
-    // Pilih varian
-    document.querySelectorAll(".variant-item").forEach(item => {
-      item.addEventListener("click", () => {
-        document.querySelectorAll(".variant-item").forEach(i => i.classList.remove("selected"));
-        item.classList.add("selected");
-        variantCode.value = item.dataset.code;
-        buyBtn.style.display = "block";
-      });
-    });
-
-    // Validasi & konfirmasi sebelum submit
-    form.addEventListener("submit", (e) => {
-      if (!userInput.value) {
-        e.preventDefault();
-        alert("Harap masukkan ID / Nomor dulu.");
-        return;
-      }
-      if (!variantCode.value) {
-        e.preventDefault();
-        alert("Silakan pilih paket dulu.");
-        return;
-      }
-
-      // Tambahkan konfirmasi manual
-      const serverText = serverInput ? `Server: ${serverInput.value || '-'}\n` : '';
-      const confirmMsg = `Pastikan data kamu benar:\nID: ${userInput.value}\n${serverText}Lanjutkan pembelian?`;
-
-      if (!confirm(confirmMsg)) {
-        e.preventDefault(); // batalkan submit kalau user pilih cancel
-        return;
-      }
-    });
-  });
 </script>
 {% endblock %}
