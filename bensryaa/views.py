@@ -1,33 +1,94 @@
 from django.views.generic import ListView, DetailView
 from django.shortcuts import redirect, render,get_object_or_404
 from .models import Product,ProductVariant,Order
+from django.db.models.functions import TruncDate
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q,Count
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.conf import settings
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.utils.safestring import mark_safe
 from .helpers.forms_mapping import BRAND_LOGOS,DEFAULT_LOGO,GAME_OVERRIDES,CATEGORY_INPUTS,FIELD_DEFINITIONS
-import requests,uuid,random
+import requests,uuid,random,hashlib,json
 from collections import defaultdict
+
+def generate_sign(username, api_key, ref_id_or_kode):
+    """
+    Generate sign sesuai aturan Digiflazz:
+    - Untuk price list: sign = md5(username + api_key + 'pricelist')
+    - Untuk transaksi: sign = md5(username + api_key + ref_id)
+    """
+    raw_string = f"{username}{api_key}{ref_id_or_kode}"
+    return hashlib.md5(raw_string.encode("utf-8")).hexdigest()
 
 def order_to_digiflazz(order):
     url = "https://api.digiflazz.com/v1/transaction"
-    ref_id = str(uuid.uuid4())  # bikin unik
+    ref_id = str(uuid.uuid4())
+    sign = generate_sign(
+        settings.DIGIFLAZZ_USERNAME,
+        settings.DIGIFLAZZ_API_KEY,
+        ref_id
+    )
     payload = {
         "username": settings.DIGIFLAZZ_USERNAME,
         "buyer_sku_code": order.product_variant.code,
         "customer_no": order.target_id,
         "ref_id": ref_id,
-        "sign": settings.DIGIFLAZZ_SIGN,
+        "sign": sign,
     }
     res = requests.post(url, json=payload, timeout=15).json()
     order.ref_id = ref_id
     order.save()
     return res
+
+
+def check_order_status_view(request, ref_id):
+    """
+    View untuk cek status order ke Digiflazz pakai ref_id.
+    Bisa dipanggil dari AJAX/Fetch di frontend.
+    """
+    try:
+        order = Order.objects.get(ref_id=ref_id)
+    except Order.DoesNotExist:
+        return JsonResponse({"error": "Order tidak ditemukan"}, status=404)
+
+    # generate sign
+    sign = generate_sign(
+        settings.DIGIFLAZZ_USERNAME,
+        settings.DIGIFLAZZ_API_KEY,
+        order.ref_id
+    )
+
+    # request ke Digiflazz
+    url = "https://api.digiflazz.com/v1/transaction"
+    payload = {
+        "username": settings.DIGIFLAZZ_USERNAME,
+        "ref_id": order.ref_id,
+        "sign": sign,
+    }
+    res = requests.post(url, json=payload, timeout=15).json()
+
+    # update status order di DB
+    digi_status = res.get("data", {}).get("status")
+    if digi_status == "Sukses":
+        order.status = "success"
+    elif digi_status == "Gagal":
+        order.status = "failed"
+    elif digi_status == "Pending":
+        order.status = "paid"  # pending = udah dibayar tapi nunggu
+    order.save()
+
+    return JsonResponse({
+        "ref_id": order.ref_id,
+        "status": order.status,
+        "raw_response": res,  # biar kelihatan respon asli kalau mau debug
+    })
+
 
 @login_required
 def create_order(request):
@@ -130,56 +191,62 @@ def sync_products_from_api(request):
     res = requests.post(url, json=payload, timeout=10)
     data = res.json()
 
+    api_codes = []  # kumpulin semua kode varian dari API
     count = 0
+
     for item in data.get("data", []):
         brand = (item.get("brand") or "").strip()
         category = (item.get("category") or "").strip().lower()
 
-        # Simpan brand ke Product
         product, _ = Product.objects.get_or_create(
             brand=brand,
             defaults={"image_url": "store/img/hero.png"}
         )
-# Tentukan persentase markup per kategori
+
         CATEGORY_MARKUP = {
-        "pulsa": 0.06,      # 6%
+            "pulsa": 0.06,
             "data": 0.06,
             "paket sms & telpon": 0.06,
-            "e-money": 0.07,    # 7%
-            "pln": 0.05,        # 5%
+            "e-money": 0.07,
+            "pln": 0.05,
             "tv": 0.05,
             "gas": 0.05,
-            "game": 0.12,       # 12%
+            "game": 0.12,
         }
 
-# ambil harga asli dari Digiflazz
         base_price = int(item["price"])
-
-# ambil kategori & tentukan markup
-        markup_percent = CATEGORY_MARKUP.get(category, 0.10)  # default 10% kalau tidak ketemu
+        markup_percent = CATEGORY_MARKUP.get(category, 0.10)
         markup = int(base_price * markup_percent)
-
-# angka random biar harga beda-beda
         random_extra = random.randint(50, 999)
-
-# hitung harga jual & bulatkan ke kelipatan 100 biar rapi
         sell_price = round((base_price + markup + random_extra) / 100) * 100
-
 
         ProductVariant.objects.update_or_create(
             code=item["buyer_sku_code"],
             defaults={
                 "product": product,
-                "category": category,  # simpan kategori di varian
+                "category": category,
                 "name": item["product_name"],
-                "price": sell_price,   # harga jual ke user
+                "price": sell_price,
                 "desc": item.get("desc", ""),
             }
         )
 
+        api_codes.append(item["buyer_sku_code"])
         count += 1
 
-    return JsonResponse({"message": f"{count} produk berhasil diupdate dengan markup otomatis."})
+    # Hapus varian yang sudah tidak ada di API
+    deleted_variants, _ = ProductVariant.objects.exclude(code__in=api_codes).delete()
+
+    # Hapus product (brand) yang sudah tidak punya varian
+    deleted_products, _ = Product.objects.filter(variants__isnull=True).delete()
+
+    return JsonResponse({
+        "message": (
+            f"{count} produk berhasil diupdate. "
+            f"{deleted_variants} varian dihapus. "
+            f"{deleted_products} brand dihapus."
+        )
+    })
 
 
 
@@ -233,12 +300,34 @@ def admin_dashboard(request):
 
     recent_orders = Order.objects.select_related("user", "product_variant").order_by("-created_at")[:10]
 
+    # --- Data untuk chart 7 hari terakhir ---
+    today = timezone.now().date()
+    last_7_days = [today - timezone.timedelta(days=i) for i in range(6, -1, -1)]
+
+    # hitung order per hari
+    orders_per_day = (
+        Order.objects
+        .filter(created_at__date__gte=last_7_days[0])
+        .annotate(day=TruncDate("created_at"))
+        .values("day")
+        .annotate(total=Count("id"))
+        .order_by("day")
+    )
+
+    # bikin dict {tanggal: jumlah}
+    orders_dict = {o["day"]: o["total"] for o in orders_per_day}
+
+    labels = [d.strftime("%d %b") for d in last_7_days]  # contoh: 19 Sep
+    data = [orders_dict.get(d, 0) for d in last_7_days]
+
     return render(request, "store/admin_dashboard.html", {
         "total_users": total_users,
         "total_orders": total_orders,
         "pending_orders": pending_orders,
         "total_products": total_products,
         "recent_orders": recent_orders,
+        "order_chart_labels": mark_safe(json.dumps(labels)),
+        "order_chart_data": mark_safe(json.dumps(data)),
     })
 
 

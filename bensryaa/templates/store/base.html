@@ -6,16 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>{% block title %}BennSrya{% endblock %}</title>
 
-    <!-- Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Adding more Google Fonts for better typography -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Fonts loaded from main CSS (Orbitron + Inter) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <!-- Favicon & CSS -->
     <link
@@ -40,21 +32,26 @@
 
         <div class="search-toggle-wrapper">
           <!-- Search -->
-          <form class="search-form" action="." method="get">
-            <input type="text" name="q" id="searchInput" placeholder="Cari produk..." value="{{ search_query|default:'' }}" autocomplete="off">
-            <div id="searchResults" class="search-results"></div>
+          <form class="search-form" action="." method="get" role="search" aria-label="Pencarian produk">
+            <input type="text" name="q" id="searchInput" aria-label="Cari produk" placeholder="Cari produk..." value="{{ search_query|default:'' }}" autocomplete="off">
+            <div id="searchResults" class="search-results" aria-live="polite"></div>
           </form>
 
           <!-- Toggle Mobile -->
-          <div class="mobile-toggle" id="mobileToggle">
+          <!-- Mobile search icon (visible on small screens) -->
+          <button id="mobileSearchToggle" class="mobile-search-btn" aria-label="Buka pencarian" aria-controls="mobileSearchOverlay" aria-expanded="false">
+            <i class="fas fa-search"></i>
+          </button>
+
+          <button class="mobile-toggle" id="mobileToggle" aria-controls="mainNav" aria-expanded="false" aria-label="Menu">
             <span></span>
             <span></span>
             <span></span>
-          </div>
+          </button>
         </div>
 
         <!-- Main Navigation -->
-        <nav class="main-nav">
+        <nav id="mainNav" class="main-nav" role="navigation" aria-label="Main navigation" aria-hidden="false">
           <a href="{% url 'bensryaa:index' %}">Home</a>
           {% if user.is_authenticated %}
           <a href="{% url 'bensryaa:logout' %}">Logout</a>
@@ -71,23 +68,41 @@
       </div>
     </header>
 
+    <!-- Mobile Search Overlay -->
+    <div id="mobileSearchOverlay" class="search-overlay" aria-hidden="true">
+      <div class="panel">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input id="mobileSearchInput" class="mobile-search-input" type="search" placeholder="Cari produk..." autocomplete="off" />
+          <button id="mobileSearchClose" class="mobile-search-btn" aria-label="Tutup pencarian"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="mobileSearchResults" class="search-results" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
     <!-- CONTENT -->
     <main class="container">{% block content %}{% endblock %}</main>
 
     <!-- FOOTER -->
-    <footer class="site-footer">
-      <div class="container footer-grid">
-        <!-- Brand Info -->
-        <div class="footer-brand">
-          <img
-            src="{% static 'store/img/logooo.png' %}"
-            alt="BennSryaStore Logo"
-          />
-          <p>
-            Tempat top up game, pulsa, PLN, dan e-money terpercaya. Cepat ⚡
-            Aman 🔒 Praktis ✅
-          </p>
-        </div>
+    <footer class="site-footer fade-in-up">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="{% static 'store/img/logooo.png' %}" alt="Logo" />
+        <h1>A great fun for everyone from</h1>
+      <h2>BennSrya</h2>
+      <p>Tempat Top Up Game, App Prem & Belanja Online Terpercaya. Cepat, Aman, dan Praktis!</p>
+        <div class="footer-social">
+<a href="https://wa.me/6289515675014" target="_blank" class="contact-btn wa">
+      <i class="fab fa-whatsapp"></i>
+    </a>          
+<a href="https://t.me/Bensurya12" target="_blank" class="contact-btn tg">
+      <i class="fab fa-telegram-plane"></i>
+    </a>          
+   <a href="https://www.instagram.com/bensryaa_" target="_blank" class="contact-btn ig">
+      <i class="fab fa-instagram"></i> 
+    </a>        
+  </div>
+      </div>
 
         <!-- Quick Links -->
         <div class="footer-links">
@@ -137,12 +152,70 @@
       const nav = document.querySelector(".main-nav");
 
       mobileToggle.addEventListener("click", () => {
+        const isOpen = !nav.classList.contains('active');
         mobileToggle.classList.toggle("active");
         nav.classList.toggle("active");
+        // lock body scroll when nav open on mobile
+        document.body.classList.toggle('nav-open', nav.classList.contains('active'));
+        // update ARIA
+        mobileToggle.setAttribute('aria-expanded', String(isOpen));
+        nav.setAttribute('aria-hidden', String(!isOpen));
       });
       
       const searchInput = document.getElementById("searchInput");
       const searchResults = document.getElementById("searchResults");
+
+      // Mobile search overlay elements
+      const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+      const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+      const mobileSearchInput = document.getElementById('mobileSearchInput');
+      const mobileSearchResults = document.getElementById('mobileSearchResults');
+      const mobileSearchClose = document.getElementById('mobileSearchClose');
+
+      function openMobileSearch(){
+        mobileSearchOverlay.classList.add('active');
+        document.body.classList.add('overlay-open');
+        mobileSearchOverlay.setAttribute('aria-hidden', 'false');
+        mobileSearchToggle.setAttribute('aria-expanded', 'true');
+        mobileSearchInput.focus();
+      }
+      function closeMobileSearch(){
+        mobileSearchOverlay.classList.remove('active');
+        document.body.classList.remove('overlay-open');
+        mobileSearchOverlay.setAttribute('aria-hidden', 'true');
+        mobileSearchToggle.setAttribute('aria-expanded', 'false');
+        mobileSearchResults.style.display = 'none';
+      }
+
+      mobileSearchToggle.addEventListener('click', openMobileSearch);
+      mobileSearchClose.addEventListener('click', closeMobileSearch);
+
+      // close on overlay click (outside panel)
+      mobileSearchOverlay.addEventListener('click', (e)=>{
+        if(e.target === mobileSearchOverlay) closeMobileSearch();
+      });
+
+      // ESC to close
+      document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeMobileSearch(); });
+
+      // mobile search live query (reuse endpoint)
+      mobileSearchInput.addEventListener('input', async ()=>{
+        const q = mobileSearchInput.value.trim();
+        if(q.length < 2){ mobileSearchResults.style.display = 'none'; return; }
+        const res = await fetch(`/search-api/?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if(data.results.length){
+          mobileSearchResults.innerHTML = data.results.map(item=>`
+            <div class="search-result-item" onclick="window.location.href='${item.url}'">
+              <img src="${item.logo_url}" alt="${item.brand}"><span>${item.brand}</span>
+            </div>
+          `).join('');
+          mobileSearchResults.style.display = 'block';
+        } else {
+          mobileSearchResults.innerHTML = `<div class="search-result-item">Tidak ada hasil</div>`;
+          mobileSearchResults.style.display = 'block';
+        }
+      });
 
       searchInput.addEventListener("input", async () => {
         const query = searchInput.value.trim();
@@ -176,6 +249,21 @@
           searchResults.style.display = "none";
         }
       });
+
+      // Observe stagger containers and play their child animations when visible
+      const staggerObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const container = entry.target;
+            container.querySelectorAll(':scope > *').forEach(el => {
+              el.style.animationPlayState = 'running';
+            });
+            obs.unobserve(container);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.stagger').forEach(s => staggerObserver.observe(s));
     </script>
   </body>
 </html>

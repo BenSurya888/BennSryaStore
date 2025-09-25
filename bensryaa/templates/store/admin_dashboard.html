@@ -15,6 +15,13 @@
     <div class="stat-card"><h2>{{ pending_orders }}</h2><p>Order Pending</p></div>
     <div class="stat-card"><h2>{{ total_products }}</h2><p>Produk</p></div>
   </div>
+  <!-- Grafik ringkas -->
+  <div class="chart-card">
+    <h2>📈 Order 7 Hari Terakhir</h2>
+    <canvas id="orderChart"
+        data-labels='{{ order_chart_labels|safe }}'
+        data-data='{{ order_chart_data|safe }}'></canvas>
+  </div>
 
   <!-- Aksi cepat -->
   <div class="quick-actions">
@@ -46,7 +53,10 @@
             <td>#{{ order.id }}</td>
             <td>{{ order.user.username }}</td>
             <td>{{ order.product_variant.name }}</td>
-            <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
+            <td id="status-{{ order.id }}">
+  <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+</td>
+
             <td>{{ order.ref_id|default:"-" }}</td>
             <td>
               {% if order.status == "success" %}<span class="status-badge status-success">✅ Sukses</span>
@@ -61,14 +71,21 @@
               {% else %}Belum ada{% endif %}
             </td>
             <td>
-              {% if order.status == "pending" %}
-                <form method="post" action="{% url 'bensryaa:update_order_status' order.id %}">
-                  {% csrf_token %}
-                  <button type="submit" name="status" value="paid" class="btn small">✅ Mark Paid</button>
-                  <button type="submit" name="status" value="failed" class="btn small">❌ Fail</button>
-                </form>
-              {% else %}-{% endif %}
-            </td>
+  {% if order.status == "pending" %}
+    <form method="post" action="{% url 'bensryaa:update_order_status' order.id %}">
+      {% csrf_token %}
+      <button type="submit" name="status" value="paid" class="btn small"
+              onclick="return confirm('Yakin order ini sudah dibayar?')">✅ Mark Paid</button>
+      <button type="submit" name="status" value="failed" class="btn small"
+              onclick="return confirm('Yakin order ini gagal?')">❌ Fail</button>
+    </form>
+  {% endif %}
+  
+  {% if order.ref_id %}
+    <button type="button" class="btn small"
+            onclick="cekStatus('{{ order.ref_id }}', '{{ order.id }}')">🔍 Cek Status</button>
+  {% endif %}
+</td>
           </tr>
           {% empty %}
           <tr><td colspan="9" style="text-align: center; padding: 20px;">Belum ada order.</td></tr>
@@ -84,7 +101,10 @@
         <div class="order-row"><strong>ID:</strong> #{{ order.id }}</div>
         <div class="order-row"><strong>User:</strong> {{ order.user.username }}</div>
         <div class="order-row"><strong>Produk:</strong> {{ order.product_variant.name }}</div>
-        <div class="order-row"><strong>Status:</strong> <span class="status-badge status-{{ order.status }}">{{ order.status }}</span></div>
+        <div class="order-row"><strong>Status:</strong> 
+  <span id="status-{{ order.id }}" class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+</div>
+
         <div class="order-row"><strong>Ref ID:</strong> {{ order.ref_id|default:"-" }}</div>
         <div class="order-row">
           <strong>Status Digiflazz:</strong>
@@ -102,11 +122,18 @@
         </div>
         <div class="order-row">
           <strong>Aksi:</strong>
+          {% if order.ref_id %}
+  <button type="button" class="btn small"
+          onclick="cekStatus('{{ order.ref_id }}', '{{ order.id }}')">🔍 Cek Status</button>
+{% endif %}
+
           {% if order.status == "pending" %}
             <form method="post" action="{% url 'bensryaa:update_order_status' order.id %}">
               {% csrf_token %}
-              <button type="submit" name="status" value="paid" class="btn small">✅ Mark Paid</button>
-              <button type="submit" name="status" value="failed" class="btn small">❌ Fail</button>
+              <button type="submit" name="status" value="paid" class="btn small"
+                      onclick="return confirm('Yakin order ini sudah dibayar?')">✅ Mark Paid</button>
+              <button type="submit" name="status" value="failed" class="btn small"
+                      onclick="return confirm('Yakin order ini gagal?')">❌ Fail</button>
             </form>
           {% else %}-{% endif %}
         </div>
@@ -120,30 +147,12 @@
   </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Add loading animation to sync button
-  const syncBtn = document.getElementById('syncBtn');
-  if (syncBtn) {
-    syncBtn.addEventListener('click', function(e) {
-      this.classList.add('syncing');
-      this.innerHTML = '⏳ Memproses...';
-    });
-  }
-  
-  // Add animation to cards when they come into view
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.animationPlayState = 'running';
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  
-  document.querySelectorAll('.stat-card, .order-card').forEach(card => {
-    observer.observe(card);
-  });
-});
+<!-- Chart.js -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <script>
+  window.orderChartLabels = {{ order_chart_labels|safe }};
+  window.orderChartData = {{ order_chart_data|safe }};
 </script>
+<script src="{% static 'store/js/admin_dashboard.js' %}"></script>
 {% endblock %}
