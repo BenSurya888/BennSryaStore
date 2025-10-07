@@ -94,11 +94,60 @@ def check_order_status_view(request, ref_id):
 def create_order(request):
     if request.method == "POST":
         variant_code = request.POST.get("variant_code")
-        target_id = request.POST.get("target_id")
-        server_id = request.POST.get("server_id", "")
+        target_id = request.POST.get("target_id", "").strip()
+        server_id = request.POST.get("server_id", "").strip()
+        payment_method = request.POST.get("payment_method", "qris")
 
         variant = get_object_or_404(ProductVariant, code=variant_code)
+        
+        # Dapatkan kategori dan brand untuk validasi
+        category = variant.category.lower()
+        brand = variant.product.brand.lower().strip()
 
+        # Tentukan field keys berdasarkan mapping
+        if brand in GAME_OVERRIDES:
+            field_keys = GAME_OVERRIDES[brand]
+        else:
+            field_keys = CATEGORY_INPUTS.get(category, ["phone"])
+
+        # Validasi berdasarkan field yang diperlukan
+        validation_errors = []
+        
+        for field_key in field_keys:
+            field_def = FIELD_DEFINITIONS.get(field_key, {})
+            field_name = field_def.get("name", "")
+            
+            if field_name == "target_id":
+                value = target_id
+            elif field_name == "server_id":
+                value = server_id
+            else:
+                continue
+                
+            # Validasi required
+            if field_def.get("required", False) and not value:
+                validation_errors.append(f"{field_def.get('label', 'Field')} harus diisi")
+                continue
+                
+            # Validasi pattern
+            pattern = field_def.get("pattern")
+            if pattern and value:
+                import re
+                if not re.match(pattern, value):
+                    validation_errors.append(f"{field_def.get('label', 'Field')} format tidak valid")
+                    
+            # Validasi khusus untuk email
+            if field_def.get("type") == "email" and value:
+                if "@" not in value or "." not in value:
+                    validation_errors.append("Format email tidak valid")
+
+        # Jika ada error validasi
+        if validation_errors:
+            for error in validation_errors:
+                messages.error(request, error)
+            return redirect("bensryaa:product_detail", pk=variant.product.id)
+
+        # Buat order jika validasi berhasil
         order = Order.objects.create(
             user=request.user,
             product_variant=variant,
@@ -106,11 +155,11 @@ def create_order(request):
             server_id=server_id if server_id else None,
             amount=variant.price,
             status="pending",
+            payment_method=payment_method,
         )
         return redirect("bensryaa:payment_page", order_id=order.id)
 
     return redirect("bensryaa:index")
-
 
 @login_required
 def payment_page(request, order_id):
@@ -141,23 +190,29 @@ class ProductDetailView(DetailView):
             grouped.setdefault(v.category, []).append(v)
 
         # --- LOGO MAPPING ---
-        brand = self.object.brand.lower()
+        brand = self.object.brand.lower().strip()
         logo_url = BRAND_LOGOS.get(brand, DEFAULT_LOGO)
 
-        # --- Input fields ---
-        category = variants.first().category if variants.exists() else ""
+        # --- Input fields berdasarkan kategori dan brand ---
+        category = variants.first().category.lower() if variants.exists() else ""
+        
+        # Cek apakah brand ada di GAME_OVERRIDES
         if brand in GAME_OVERRIDES:
             field_keys = GAME_OVERRIDES[brand]
         else:
+            # Gunakan kategori umum
             field_keys = CATEGORY_INPUTS.get(category, ["phone"])
 
-        input_fields = [FIELD_DEFINITIONS[key] for key in field_keys if key in FIELD_DEFINITIONS]
+        # Ambil definisi field
+        input_fields = []
+        for key in field_keys:
+            if key in FIELD_DEFINITIONS:
+                input_fields.append(FIELD_DEFINITIONS[key])
 
         context["grouped_variants"] = grouped
         context["input_fields"] = input_fields
-        context["brand_logo"] = logo_url  # <--- Tambahkan ini
+        context["brand_logo"] = logo_url
         return context
-
 
 
 def index(request):
@@ -396,6 +451,31 @@ class IndexView(ListView):
         context = super().get_context_data(**kwargs)
         products = context["products"]
 
+        # Tambahkan logo_url ke setiap product
+        for p in products:
+            key = p.brand.lower().strip()
+            logo = BRAND_LOGOS.get(key, DEFAULT_LOGO)
+            p.logo_url = logo
+
+        # Grouping per kategori
+        from collections import defaultdict
+        products_by_category = defaultdict(list)
+        for p in products:
+            first_variant = p.variants.first()
+            category = first_variant.category if first_variant else "lainnya"
+            products_by_category[category].append(p)
+
+        context["products_by_category"] = dict(
+            sorted(products_by_category.items(), key=lambda x: len(x[1]), reverse=True)
+        )
+
+        context["search_query"] = self.request.GET.get("q", "")
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = context["products"]
+
         for p in products:
             key = p.brand.lower().strip()
             logo = BRAND_LOGOS.get(key, DEFAULT_LOGO)
@@ -415,6 +495,8 @@ class IndexView(ListView):
         context["search_query"] = self.request.GET.get("q", "")
         return context
 
+# views.py - UPDATE search_products_api
+
 def search_products_api(request):
     query = request.GET.get("q", "").strip()
     results = []
@@ -422,14 +504,14 @@ def search_products_api(request):
     if query:
         products = Product.objects.filter(
             Q(brand__icontains=query) | Q(variants__name__icontains=query)
-        ).distinct()[:8]  # max 8 hasil biar gak terlalu panjang
+        ).distinct()[:8]
 
         for p in products:
             results.append({
                 "id": p.id,
                 "brand": p.brand,
                 "logo_url": BRAND_LOGOS.get(p.brand.lower().strip(), DEFAULT_LOGO),
-                "url": f"/product/{p.id}/",  # pastikan URL ke product detail benar
+                "url": f"/product/{p.id}/",
             })
 
     return JsonResponse({"results": results})

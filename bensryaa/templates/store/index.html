@@ -4,19 +4,25 @@
 
 {% block content %}
 <section class="hero">
-  <div class="hero-inner stagger">
-    <div class="hero-text">
-      <h1 class="delay-100">A great fun for everyone from</h1>
-      <h2 class="delay-200">BennSrya</h2>
-      <p class="delay-300">Tempat Top Up Game, App Prem & Belanja Online Terpercaya. Cepat, Aman, dan Praktis!</p>
+  <div class="swiper hero-slider">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <img src="{% static 'store/img/banner1.png' %}" alt="Banner 1">
+      </div>
+      <div class="swiper-slide">
+        <img src="{% static 'store/img/banner2.png' %}" alt="Banner 2">
+      </div>
     </div>
-    <div class="hero-image delay-400">
-      <img src="{% static 'store/img/hero.png' %}" alt="BennSrya Store">
-    </div>
+
+    <!-- Navigasi -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+
+    <!-- Dots -->
+    <div class="swiper-pagination"></div>
   </div>
 </section>
 
-<!-- Category Navigation -->
 <div class="category-nav container">
   {% for category in products_by_category.keys %}
     <button class="category-nav-btn" onclick="scrollToCategory('{{ category }}')">
@@ -32,7 +38,10 @@
     {% for product in product_list %}
       <article class="card" data-category="{{ product.category }}">
         <a href="{% url 'bensryaa:product_detail' product.id %}">
-          <img src="{{ product.logo_url }}" alt="{{ product.brand }}" loading="lazy">
+          <div class="card-image-container">
+            <img src="{{ product.logo_url }}" alt="{{ product.brand }}" loading="lazy">
+            <div class="card-overlay"></div>
+          </div>
           <div class="meta">
             <h3>{{ product.brand }}</h3>
           </div>
@@ -50,7 +59,27 @@
 </section>
 {% endfor %}
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
+ var swiper = new Swiper(".hero-slider", {
+    loop: true,
+    slidesPerView: 1,
+    centeredSlides: true,
+    spaceBetween: 0,
+    autoplay: {
+      delay: 4000,
+      disableOnInteraction: false,
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+  });
+
 // Scroll to category function
 function scrollToCategory(category) {
   const element = document.getElementById('category-' + category);
@@ -67,13 +96,13 @@ document.querySelectorAll('.category-section').forEach(section => {
   
   if (!loadMoreBtn) return;
   
-  let visibleCount = 6;
+  let visibleCount = 7;
   
   // Initial show
   showCards();
   
   loadMoreBtn.addEventListener('click', () => {
-    visibleCount += 6;
+    visibleCount += 7;
     showCards();
     
     // Smooth scroll to the newly shown cards

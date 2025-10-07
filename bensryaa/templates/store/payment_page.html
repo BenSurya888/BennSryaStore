@@ -11,44 +11,167 @@
     <!-- Ringkasan order -->
     <div class="payment-card order-summary">
         <h2>📋 Ringkasan Pesanan</h2>
-        <p><strong>Produk:</strong> {{ order.product_variant.product.brand }}</p>
-        <p><strong>Kategori:</strong> {{ order.product_variant.category }}</p>
-        <p><strong>Paket:</strong> {{ order.product_variant.name }}</p>
-        <p><strong>Harga:</strong> {{ order.amount|rupiah }}</p>
-        <p><strong>Tujuan:</strong> {{ order.target_id }}</p>
-        {% if order.server_id %}
-        <p><strong>Server ID:</strong> {{ order.server_id }}</p>
-        {% endif %}
-        <p><strong>Status:</strong> 
-            {% if order.status == 'pending' %}
-                <span class="status-badge status-pending">Menunggu Pembayaran</span>
-            {% elif order.status == 'paid' %}
-                <span class="status-badge status-paid">Pembayaran Diterima</span>
-            {% elif order.status == 'success' %}
-                <span class="status-badge status-success">Berhasil Diproses</span>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <strong>Produk:</strong>
+                <span>{{ order.product_variant.product.brand }}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Kategori:</strong>
+                <span>{{ order.product_variant.category }}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Paket:</strong>
+                <span>{{ order.product_variant.name }}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Harga:</strong>
+                <span class="price">{{ order.amount|rupiah }}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Tujuan:</strong>
+                <span>{{ order.target_id }}</span>
+            </div>
+            {% if order.server_id %}
+            <div class="summary-item">
+                <strong>Server ID:</strong>
+                <span>{{ order.server_id }}</span>
+            </div>
             {% endif %}
-        </p>
+            <div class="summary-item">
+                <strong>Metode Bayar:</strong>
+                <span class="payment-method-badge">
+                    {% if order.payment_method == 'qris' %}
+                    📱 QRIS
+                    {% elif order.payment_method == 'virtual_account' %}
+                    🏦 Virtual Account
+                    {% elif order.payment_method == 'ewallet' %}
+                    💎 E-Wallet
+                    {% else %}
+                    {{ order.payment_method|title }}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="summary-item">
+                <strong>Status:</strong>
+                <span class="status-badge status-{{ order.status }}">
+                    {% if order.status == 'pending' %}
+                        Menunggu Pembayaran
+                    {% elif order.status == 'paid' %}
+                        Pembayaran Diterima
+                    {% elif order.status == 'success' %}
+                        Berhasil Diproses
+                    {% endif %}
+                </span>
+            </div>
+        </div>
     </div>
 
-    <!-- Instruksi pembayaran -->
+    <!-- Instruksi pembayaran berdasarkan metode -->
     <div class="payment-card payment-instructions">
         <h2>💳 Instruksi Pembayaran</h2>
-        <p>Silakan transfer ke salah satu rekening/ewallet berikut:</p>
-        <ul>
-            <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
-            <li><strong>DANA:</strong> 081907444304 a.n BennSrya</li>
-            <li><strong>GOPAY:</strong> 081907444304 a.n BennSrya</li>
-        </ul>
-
-        <h3>🔗 Pembayaran via QRIS</h3>
-        <p>Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
-        <div class="qris-box">
-            <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="qris-img">
-            <br>
-            <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn-download">
-                📥 Download QRIS
-            </a>
+        
+        {% if order.payment_method == 'qris' %}
+        <div class="payment-method-instruction active" id="qris-instruction">
+            <h3>📱 Pembayaran via QRIS</h3>
+            <p>Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
+            <div class="qris-box">
+                <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="qris-img">
+                <div class="qris-steps">
+                    <h4>Langkah-langkah:</h4>
+                    <ol>
+                        <li>Buka aplikasi e-wallet atau mobile banking Anda</li>
+                        <li>Pilih fitur scan QRIS</li>
+                        <li>Arahkan kamera ke kode QR di atas</li>
+                        <li>Konfirmasi pembayaran sebesar <strong>{{ order.amount|rupiah }}</strong></li>
+                        <li>Screenshot bukti pembayaran</li>
+                    </ol>
+                </div>
+                <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn-download">
+                    📥 Download QRIS
+                </a>
+            </div>
         </div>
+
+        {% elif order.payment_method == 'virtual_account' %}
+        <div class="payment-method-instruction active" id="va-instruction">
+            <h3>🏦 Pembayaran via Virtual Account</h3>
+            <p>Silakan transfer ke Virtual Account berikut:</p>
+            <div class="virtual-account-box">
+                <div class="va-number">
+                    <strong>Virtual Account Number:</strong>
+                    <span class="va-code">8880 1234 5678 9012</span>
+                    <button class="copy-btn" onclick="copyVANumber()">📋 Copy</button>
+                </div>
+                <div class="amount-info">
+                    <strong>Jumlah Transfer:</strong>
+                    <span class="amount">{{ order.amount|rupiah }}</span>
+                </div>
+                <div class="bank-details">
+                    <h4>Bank Tersedia:</h4>
+                    <ul>
+                        <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
+                        <li><strong>BRI:</strong> 0987654321 a.n BennSrya</li>
+                        <li><strong>BNI:</strong> 1234567890 a.n BennSrya</li>
+                        <li><strong>Mandiri:</strong> 9876543210 a.n BennSrya</li>
+                    </ul>
+                </div>
+                <div class="va-steps">
+                    <h4>Langkah-langkah:</h4>
+                    <ol>
+                        <li>Buka aplikasi mobile banking atau ATM bank Anda</li>
+                        <li>Pilih menu transfer</li>
+                        <li>Masukkan nomor Virtual Account di atas</li>
+                        <li>Transfer sebesar <strong>{{ order.amount|rupiah }}</strong></li>
+                        <li>Simpan bukti transfer</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        {% elif order.payment_method == 'ewallet' %}
+        <div class="payment-method-instruction active" id="ewallet-instruction">
+            <h3>💎 Pembayaran via E-Wallet</h3>
+            <p>Transfer ke salah satu e-wallet berikut:</p>
+            <div class="ewallet-options">
+                <div class="ewallet-item">
+                    <div class="ewallet-icon">💰</div>
+                    <div class="ewallet-info">
+                        <strong>DANA:</strong> 081907444304 a.n BennSrya
+                    </div>
+                </div>
+                <div class="ewallet-item">
+                    <div class="ewallet-icon">💫</div>
+                    <div class="ewallet-info">
+                        <strong>GOPAY:</strong> 081907444304 a.n BennSrya
+                    </div>
+                </div>
+                <div class="ewallet-item">
+                    <div class="ewallet-icon">⚡</div>
+                    <div class="ewallet-info">
+                        <strong>OVO:</strong> 081907444304 a.n BennSrya
+                    </div>
+                </div>
+                <div class="ewallet-item">
+                    <div class="ewallet-icon">🔗</div>
+                    <div class="ewallet-info">
+                        <strong>LinkAja:</strong> 081907444304 a.n BennSrya
+                    </div>
+                </div>
+            </div>
+            <div class="ewallet-steps">
+                <h4>Langkah-langkah:</h4>
+                <ol>
+                    <li>Buka aplikasi e-wallet pilihan Anda</li>
+                    <li>Pilih menu transfer atau kirim uang</li>
+                    <li>Masukkan nomor tujuan yang tertera di atas</li>
+                    <li>Transfer sebesar <strong>{{ order.amount|rupiah }}</strong></li>
+                    <li>Tambahkan keterangan: Order #{{ order.id }}</li>
+                    <li>Simpan bukti transfer</li>
+                </ol>
+            </div>
+        </div>
+        {% endif %}
 
         <p class="note">💡 Setelah transfer, upload bukti pembayaran di bawah ini. Pesanan akan diproses setelah pembayaran dikonfirmasi.</p>
     </div>
@@ -62,19 +185,20 @@
             <a href="{{ order.payment_proof.url }}" target="_blank">
                 <img src="{{ order.payment_proof.url }}" alt="Bukti pembayaran" class="proof-preview">
             </a>
-            <p class="note">✅ Bukti pembayaran telah diupload. Silakan tunggu konfirmasi admin.</p>
+            <p class="note success">✅ Bukti pembayaran telah diupload. Silakan tunggu konfirmasi admin.</p>
         {% else %}
             <form method="post" enctype="multipart/form-data" class="proof-form">
                 {% csrf_token %}
                 <div class="file-input-container">
                     <label for="proofInput" class="file-input-label">
                         <i>📁</i>
-                        Klik untuk memilih file atau seret file ke sini
+                        <span class="file-text">Klik untuk memilih file atau seret file ke sini</span>
+                        <span class="file-types">(JPG, PNG, PDF - Maks. 5MB)</span>
                     </label>
-                    <input type="file" name="proof" id="proofInput" required>
+                    <input type="file" name="proof" id="proofInput" accept=".jpg,.jpeg,.png,.pdf" required>
                 </div>
                 <button type="submit" class="upload-btn">
-                    <span>📤 Upload Bukti</span>
+                    <span>📤 Upload Bukti Pembayaran</span>
                 </button>
             </form>
         {% endif %}
@@ -84,6 +208,13 @@
 
 {% block extra_js %}
 <script>
+    function copyVANumber() {
+        const vaNumber = '8880123456789012';
+        navigator.clipboard.writeText(vaNumber).then(() => {
+            alert('Nomor Virtual Account berhasil disalin!');
+        });
+    }
+
     // Animasi untuk elemen saat di-scroll
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.payment-card');
@@ -105,10 +236,12 @@
         const fileInput = document.getElementById('proofInput');
         if (fileInput) {
             fileInput.addEventListener('change', function(e) {
-                const fileName = e.target.files[0]?.name;
+                const file = e.target.files[0];
                 const label = document.querySelector('.file-input-label');
-                if (fileName) {
-                    label.innerHTML = `<i>📄</i> File dipilih: ${fileName}`;
+                const fileText = label.querySelector('.file-text');
+                
+                if (file) {
+                    fileText.textContent = `File dipilih: ${file.name}`;
                     label.style.background = '#e6f7ff';
                     label.style.borderColor = '#0077b6';
                     label.style.color = '#0077b6';

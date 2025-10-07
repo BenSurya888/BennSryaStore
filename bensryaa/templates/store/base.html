@@ -15,6 +15,8 @@
       type="image/png"
       href="{% static 'store/img/favicon.png' %}"
     />
+    <!-- Swiper CSS (required for correct slide layout) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="{% static 'store/css/style.css' %}" />
   </head>
   <body>
@@ -67,17 +69,6 @@
         </nav>
       </div>
     </header>
-
-    <!-- Mobile Search Overlay -->
-    <div id="mobileSearchOverlay" class="search-overlay" aria-hidden="true">
-      <div class="panel">
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input id="mobileSearchInput" class="mobile-search-input" type="search" placeholder="Cari produk..." autocomplete="off" />
-          <button id="mobileSearchClose" class="mobile-search-btn" aria-label="Tutup pencarian"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="mobileSearchResults" class="search-results" style="margin-top:12px;"></div>
-      </div>
-    </div>
 
     <!-- CONTENT -->
     <main class="container">{% block content %}{% endblock %}</main>
@@ -144,6 +135,25 @@
       <div class="footer-bottom">
         <p>Copyright © {% now "Y" %} BennSryaStore. All Rights Reserved.</p>
       </div>
+      <!-- Mobile Search Overlay -->
+<div id="mobileSearchOverlay" class="mobile-search-overlay" aria-hidden="true">
+  <div class="mobile-search-panel">
+    <div class="mobile-search-header">
+      <h3>Cari Produk</h3>
+      <button id="mobileSearchClose" class="mobile-search-close" aria-label="Tutup pencarian">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <input 
+      type="text" 
+      id="mobileSearchInput" 
+      class="mobile-search-input" 
+      placeholder="Ketik nama produk..." 
+      aria-label="Cari produk di mobile"
+    >
+    <div id="mobileSearchResults" class="mobile-search-results" aria-live="polite"></div>
+  </div>
+</div>
     </footer>
 
     <!-- Script for Hamburger -->

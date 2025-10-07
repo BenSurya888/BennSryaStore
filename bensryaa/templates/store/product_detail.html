@@ -8,7 +8,7 @@
 <section class="product-detail container">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
-        <a href="{% url 'bensryaa:index' %}">Home</a>
+        <a href="{% url 'bensryaa:index' %}">🏠 Home</a>
         <span>{{ object.brand }}</span>
     </nav>
 
@@ -17,7 +17,7 @@
         <img src="{{ brand_logo }}" alt="{{ object.brand }}" class="product-logo">
         <div class="info">
             <h1>{{ object.brand }}</h1>
-            <p>{{ object.brand }} Top Up, proses cepat & otomatis.</p>
+            <p>{{ object.brand }} Top Up, proses cepat & otomatis 24/7.</p>
         </div>
     </div>
 
@@ -28,6 +28,11 @@
         <!-- User Input Fields -->
         <div class="user-input">
             {% for field in input_fields %}
+            <div class="input-group">
+                <label for="{{ field.name }}" class="input-label">
+                    {{ field.label }}
+                    {% if field.required %}<span class="required">*</span>{% endif %}
+                </label>
                 <input
                     type="{{ field.type }}"
                     name="{{ field.name }}"
@@ -36,7 +41,12 @@
                     {% if field.required %}required{% endif %}
                     {% if field.pattern %}pattern="{{ field.pattern }}"{% endif %}
                     {% if field.title %}title="{{ field.title }}"{% endif %}
+                    class="form-input"
                 >
+                {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
             {% endfor %}
         </div>
 
@@ -46,7 +56,7 @@
                 <button type="button" 
                         class="tab-btn {% if forloop.first %}active{% endif %}" 
                         data-category="{{ category }}">
-                    {{ category }}
+                    {{ category|title }}
                 </button>
             {% endfor %}
         </div>
@@ -54,33 +64,311 @@
         <!-- Daftar varian -->
         {% for category, items in grouped_variants.items %}
             <div class="variant-list {% if forloop.first %}active{% endif %}" data-category="{{ category }}">
-                <ul>
+                <div class="variant-grid">
                     {% for variant in items %}
-                        <li class="variant-item" data-code="{{ variant.code }}">
-                            <span class="v-name">{{ variant.name }}</span>
-                            <span class="v-price">{{ variant.price|rupiah }}</span>
-                        </li>
+                        <div class="variant-item" data-code="{{ variant.code }}" data-price="{{ variant.price }}" data-name="{{ variant.name }}">
+                            <div class="variant-content">
+                                <span class="v-name">{{ variant.name }}</span>
+                                <span class="v-price">{{ variant.price|rupiah }}</span>
+                            </div>
+                        </div>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
         {% endfor %}
+
+        <!-- Opsi Pembayaran -->
+        <div class="payment-methods">
+            <h3>💳 Metode Pembayaran</h3>
+            <div class="payment-options">
+                <label class="payment-option">
+                    <input type="radio" name="payment_method" value="qris" checked>
+                    <div class="payment-card">
+                        <div class="payment-icon">📱</div>
+                        <div class="payment-info">
+                            <h4>QRIS</h4>
+                            <p>Bayar dengan QRIS via e-wallet</p>
+                            <small>Proses instan, semua e-wallet</small>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="payment-option">
+                    <input type="radio" name="payment_method" value="virtual_account">
+                    <div class="payment-card">
+                        <div class="payment-icon">🏦</div>
+                        <div class="payment-info">
+                            <h4>Virtual Account</h4>
+                            <p>Transfer via BCA, BRI, BNI, Mandiri</p>
+                            <small>Transfer bank tanpa admin</small>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="payment-option">
+                    <input type="radio" name="payment_method" value="ewallet">
+                    <div class="payment-card">
+                        <div class="payment-icon">💎</div>
+                        <div class="payment-info">
+                            <h4>E-Wallet</h4>
+                            <p>DANA, GOPAY, OVO, LinkAja</p>
+                            <small>Bayar langsung dari e-wallet</small>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Ringkasan Pesanan -->
+        <div class="order-summary" id="orderSummary" style="display: none;">
+            <h3>📋 Ringkasan Pesanan</h3>
+            <div class="summary-content">
+                <div class="summary-row">
+                    <span>Produk:</span>
+                    <span id="summaryProduct">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>Paket:</span>
+                    <span id="summaryPackage">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>Nomor Tujuan:</span>
+                    <span id="summaryTarget">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>Metode Bayar:</span>
+                    <span id="summaryPayment">-</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="summaryTotal">-</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Hidden input buat varian terpilih -->
         <input type="hidden" name="variant_code" id="variantCode">
 
         <!-- Tombol beli -->
         <div class="form-actions">
-            <button type="submit" id="buyBtn" class="buy-submit" style="display:none;">
-                <span>🛒</span> Beli Sekarang
+            <button type="button" id="buyBtn" class="buy-btn" disabled>
+                <span>🛒</span> Pilih Paket Terlebih Dahulu
             </button>
         </div>
     </form>
 </section>
 
-<!-- Custom Alert -->
-<div id="customAlert" class="custom-alert"></div>
+<!-- Custom Modal -->
+<div id="customModal" class="custom-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Konfirmasi Pesanan</h3>
+            <button type="button" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="modalContent"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-cancel">Batal</button>
+            <button type="button" class="modal-confirm">Konfirmasi & Bayar</button>
+        </div>
+    </div>
+</div>
 
-<!-- Script JS -->
+<style>
+    /* Additional Styles */
+    .user-input {
+        margin-bottom: 2rem;
+    }
+    
+    .input-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .input-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    .form-input.error {
+        border-color: #dc3545;
+        animation: shake 0.5s ease;
+    }
+    
+    .help-text {
+        display: block;
+        margin-top: 0.25rem;
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .variant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .variant-item {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .variant-item:hover {
+        border-color: #007bff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .variant-item.selected {
+        border-color: #007bff;
+        background: #f8f9ff;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
+    
+    .variant-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .v-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .v-price {
+        font-weight: 700;
+        color: #007bff;
+        font-size: 1.1rem;
+    }
+    
+    .buy-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: not-allowed;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .buy-btn:enabled {
+        background: #28a745;
+        cursor: pointer;
+    }
+    
+    .buy-btn:enabled:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .order-summary {
+        background: linear-gradient(135deg, #001a33 0%, #004080 50%, #0066cc 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid #007bff;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .summary-row.total {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #ffffff;
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .confirmation-details {
+        margin: 1rem 0;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+    
+    .detail-row.total {
+        background: #e7f3ff;
+        font-weight: 700;
+        color: #007bff;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .modal-error {
+        color: #dc3545;
+    }
+    
+    .modal-success {
+        color: #28a745;
+    }
+    
+    .note {
+        margin-top: 1rem;
+        font-style: italic;
+        color: #6c757d;
+    }
+</style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const tabs = document.querySelectorAll(".tab-btn");
@@ -88,10 +376,16 @@
         const buyBtn = document.getElementById("buyBtn");
         const variantCode = document.getElementById("variantCode");
         const form = document.getElementById("orderForm");
-        const customAlert = document.getElementById("customAlert");
+        const modal = document.getElementById("customModal");
+        const modalContent = document.getElementById("modalContent");
+        const modalConfirm = document.querySelector(".modal-confirm");
+        const modalCancel = document.querySelector(".modal-cancel");
+        const modalClose = document.querySelector(".modal-close");
+        const orderSummary = document.getElementById("orderSummary");
         
         // Get all user input fields
         const userInputs = document.querySelectorAll('.user-input input');
+        const paymentOptions = document.querySelectorAll('input[name="payment_method"]');
         
         // Tab handler
         tabs.forEach(tab => {
@@ -110,7 +404,16 @@
                 document.querySelectorAll(".variant-item").forEach(i => i.classList.remove("selected"));
                 item.classList.add("selected");
                 variantCode.value = item.dataset.code;
-                buyBtn.style.display = "flex";
+                
+                // Enable buy button
+                buyBtn.disabled = false;
+                buyBtn.innerHTML = '<span>🛒</span> Beli Sekarang - ' + item.querySelector('.v-price').textContent;
+                
+                // Show order summary
+                orderSummary.style.display = "block";
+                
+                // Update summary
+                updateOrderSummary();
                 
                 // Add animation to buy button
                 buyBtn.style.animation = "pulse 0.5s ease";
@@ -120,69 +423,164 @@
             });
         });
 
-        // Show custom alert
-        function showAlert(message, type = "error") {
-            customAlert.textContent = message;
-            customAlert.style.display = "block";
-            customAlert.style.background = type === "error" ? "#ff4757" : "#2ed573";
+        // Payment method selection
+        paymentOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                updateOrderSummary();
+            });
+        });
+
+        // Update order summary
+        function updateOrderSummary() {
+            const selectedVariant = document.querySelector('.variant-item.selected');
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+            const targetInput = document.querySelector('input[name="target_id"]');
             
-            setTimeout(() => {
-                customAlert.style.display = "none";
-            }, 3000);
+            if (selectedVariant) {
+                document.getElementById('summaryProduct').textContent = '{{ object.brand }}';
+                document.getElementById('summaryPackage').textContent = selectedVariant.querySelector('.v-name').textContent;
+                document.getElementById('summaryTotal').textContent = selectedVariant.querySelector('.v-price').textContent;
+                
+                if (targetInput && targetInput.value) {
+                    document.getElementById('summaryTarget').textContent = targetInput.value;
+                } else {
+                    document.getElementById('summaryTarget').textContent = '-';
+                }
+                
+                if (selectedPayment) {
+                    const paymentText = selectedPayment.parentElement.querySelector('h4').textContent;
+                    document.getElementById('summaryPayment').textContent = paymentText;
+                }
+            }
         }
 
-        // Validasi & konfirmasi sebelum submit
-        form.addEventListener("submit", (e) => {
+        // Real-time update when user types
+        userInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                // Remove error style
+                input.classList.remove('error');
+                
+                // Update summary if it's target_id
+                if (input.name === 'target_id') {
+                    updateOrderSummary();
+                }
+            });
+        });
+
+        // Show modal function
+        function showModal(message) {
+            modalContent.innerHTML = message;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Hide modal function
+        function hideModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Modal event listeners
+        modalConfirm.addEventListener('click', function() {
+            // Submit form setelah konfirmasi
+            form.submit();
+        });
+
+        modalCancel.addEventListener('click', hideModal);
+        modalClose.addEventListener('click', hideModal);
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+
+        // Buy button click handler
+        buyBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            
             let hasEmptyField = false;
+            let emptyFields = [];
             
             // Check if any required field is empty
             userInputs.forEach(input => {
                 if (input.hasAttribute('required') && !input.value.trim()) {
                     hasEmptyField = true;
-                    input.style.borderColor = "#ff4757";
-                    input.style.animation = "shake 0.5s ease";
-                    
-                    setTimeout(() => {
-                        input.style.animation = "";
-                    }, 500);
+                    emptyFields.push(input.placeholder || input.name);
+                    input.classList.add('error');
+                    input.focus();
                 }
             });
             
             if (hasEmptyField) {
-                e.preventDefault();
-                showAlert("Harap isi semua field yang wajib diisi.");
+                showModal(`
+                    <div class="modal-error">
+                        <h4>❌ Data Belum Lengkap</h4>
+                        <p>Harap isi semua field yang wajib diisi:</p>
+                        <ul>
+                            ${emptyFields.map(field => `<li>${field}</li>`).join('')}
+                        </ul>
+                    </div>
+                `);
                 return;
             }
             
             if (!variantCode.value) {
-                e.preventDefault();
-                showAlert("Silakan pilih paket dulu.");
+                showModal(`
+                    <div class="modal-error">
+                        <h4>❌ Paket Belum Dipilih</h4>
+                        <p>Silakan pilih paket terlebih dahulu sebelum melanjutkan.</p>
+                    </div>
+                `);
                 return;
             }
 
             // Build confirmation message
-            let confirmMsg = "Pastikan data kamu benar:\n\n";
+            const selectedVariant = document.querySelector('.variant-item.selected');
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+            const paymentText = selectedPayment.parentElement.querySelector('h4').textContent;
+            
+            let confirmMsg = `
+                <div class="modal-success">
+                    <h4>✅ Konfirmasi Pesanan</h4>
+                    <p>Pastikan data berikut sudah benar:</p>
+                    <div class="confirmation-details">
+            `;
             
             userInputs.forEach(input => {
                 const label = input.placeholder || input.name;
-                confirmMsg += `${label}: ${input.value}\n`;
+                confirmMsg += `
+                    <div class="detail-row">
+                        <strong>${label}:</strong>
+                        <span>${input.value}</span>
+                    </div>
+                `;
             });
             
-            confirmMsg += `\nLanjutkan pembelian?`;
+            confirmMsg += `
+                        <div class="detail-row">
+                            <strong>Produk:</strong>
+                            <span>{{ object.brand }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Paket:</strong>
+                            <span>${selectedVariant.querySelector('.v-name').textContent}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Metode Bayar:</strong>
+                            <span>${paymentText}</span>
+                        </div>
+                        <div class="detail-row total">
+                            <strong>Total Bayar:</strong>
+                            <span>${selectedVariant.querySelector('.v-price').textContent}</span>
+                        </div>
+                    </div>
+                    <p class="note">Klik "Konfirmasi & Bayar" untuk melanjutkan ke halaman pembayaran.</p>
+                </div>
+            `;
             
-            // Use custom confirm dialog
-            if (!confirm(confirmMsg)) {
-                e.preventDefault();
-            }
-        });
-        
-        // Remove error style when user starts typing
-        userInputs.forEach(input => {
-            input.addEventListener('input', () => {
-                if (input.value.trim()) {
-                    input.style.borderColor = "#e9ecef";
-                }
-            });
+            showModal(confirmMsg);
         });
     });
 </script>

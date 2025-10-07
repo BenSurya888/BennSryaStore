@@ -24,3 +24,9 @@ venv/
 *.seed
 *.log
 
+# Node
+node_modules/
+.npm/
+
+# (tailwind output removed during rollback)
+

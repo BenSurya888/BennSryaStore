@@ -1,0 +1,5 @@
+- card (ui)
+- register/login (ui)
+- product_detail and payment (ui and structur)
+- dashboard admin (ui)
+- footer (ui)
