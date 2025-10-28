@@ -13,11 +13,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import hashlib
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-DIGIFLAZZ_USERNAME = "sikofeDbNPOD"
-DIGIFLAZZ_API_KEY = "dev-f3327c10-8704-11f0-8208-63d7938d60d9"
+
+DIGIFLAZZ_USERNAME = os.getenv("DIGIFLAZZ_USERNAME")
+DIGIFLAZZ_API_KEY = os.getenv("DIGIFLAZZ_API_KEY")
 
 
 # Quick-start development settings - unsuitable for production
