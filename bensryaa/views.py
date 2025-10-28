@@ -172,7 +172,7 @@ def payment_page(request, order_id):
             order.status = "pending"  # tetap pending, admin yang konfirmasi
             order.save()
             messages.success(request, "Bukti pembayaran berhasil diupload. Tunggu konfirmasi admin.")
-            return redirect("bensryaa:payment_page", order_id=order.id)
+            return redirect("bensryaa:transaction_history")
 
     return render(request, "store/payment_page.html", {"order": order})
 
@@ -309,6 +309,7 @@ def register_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+        full_name = request.POST.get("full_name", "").strip()
 
         if len(password) < 8:
             messages.error(request, "Password minimal 8 karakter.")
@@ -318,7 +319,20 @@ def register_view(request):
             messages.error(request, "Username sudah dipakai.")
             return redirect("bensryaa:register")
 
-        User.objects.create_user(username=username, password=password)
+        # Split full_name into first_name and last_name
+        first_name = last_name = ""
+        if full_name:
+            parts = full_name.split()
+            first_name = parts[0]
+            if len(parts) > 1:
+                last_name = " ".join(parts[1:])
+
+        User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
         messages.success(request, "Registrasi berhasil! Silakan login.")
         return redirect("bensryaa:login")
 

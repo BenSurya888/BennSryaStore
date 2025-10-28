@@ -111,340 +111,49 @@
                         <div class="payment-icon">💎</div>
                         <div class="payment-info">
                             <h4>E-Wallet</h4>
-                            <p>DANA, GOPAY, OVO, LinkAja</p>
-                            <small>Bayar langsung dari e-wallet</small>
+                            <p>Bayar dengan DANA, OVO, GoPay</p>
+                            <small>Mudah dan cepat</small>
                         </div>
                     </div>
                 </label>
-            </div>
-        </div>
 
-        <!-- Ringkasan Pesanan -->
-        <div class="order-summary" id="orderSummary" style="display: none;">
-            <h3>📋 Ringkasan Pesanan</h3>
-            <div class="summary-content">
-                <div class="summary-row">
-                    <span>Produk:</span>
-                    <span id="summaryProduct">-</span>
-                </div>
-                <div class="summary-row">
-                    <span>Paket:</span>
-                    <span id="summaryPackage">-</span>
-                </div>
-                <div class="summary-row">
-                    <span>Nomor Tujuan:</span>
-                    <span id="summaryTarget">-</span>
-                </div>
-                <div class="summary-row">
-                    <span>Metode Bayar:</span>
-                    <span id="summaryPayment">-</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total:</span>
-                    <span id="summaryTotal">-</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- Hidden input buat varian terpilih -->
+
+        <!-- Hidden input for selected variant code -->
         <input type="hidden" name="variant_code" id="variantCode">
 
-        <!-- Tombol beli -->
-        <div class="form-actions">
-            <button type="button" id="buyBtn" class="load-more-btn" disabled>
-                <span>🛒</span> Pilih Paket Terlebih Dahulu
-            </button>
+        <!-- Order Summary (shown when variant selected) -->
+        <div class="order-summary-row-wrapper">
+            <div class="order-summary hidden" id="orderSummary">
+                <div class="summary-row"><strong>Produk:</strong> <span id="summaryProduct">-</span></div>
+                <div class="summary-row"><strong>Paket:</strong> <span id="summaryPackage">-</span></div>
+                <div class="summary-row"><strong>Tujuan:</strong> <span id="summaryTarget">-</span></div>
+                <div class="summary-row"><strong>Metode Bayar:</strong> <span id="summaryPayment">-</span></div>
+                <div class="summary-row total"><strong>Total:</strong> <span id="summaryTotal">-</span></div>
+            </div>
+            <div class="buy-btn-wrapper">
+                <button type="button" class="buy-btn" id="buyBtn" disabled>
+                    <span>🛒</span> Beli Sekarang
+                </button>
+            </div>
         </div>
-    </form>
-</section>
 
-<!-- Custom Modal -->
-<div id="customModal" class="custom-modal">
-    <div class="modal-content neumorphic-modal">
-        <div class="modal-header neumorphic-modal-header">
-            <h3 class="neumorphic-modal-title">Konfirmasi Pesanan</h3>
-            <button type="button" class="modal-close neumorphic-modal-close">&times;</button>
+        <!-- Modal for order review -->
+        <div class="custom-modal neumorphic-modal" id="customModal" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-header neumorphic-modal-header">
+                    <span class="neumorphic-modal-title">Review Pesanan</span>
+                    <button type="button" class="modal-close neumorphic-modal-close" aria-label="Tutup">&times;</button>
+                </div>
+                <div class="modal-body neumorphic-modal-body" id="modalContent">
+                    <!-- Modal content will be injected by JS -->
+                </div>
+                <div class="modal-footer neumorphic-modal-footer">
+                    <button type="button" class="modal-cancel neumorphic-btn-cancel">Batal</button>
+                    <button type="button" class="modal-confirm neumorphic-btn-confirm">Konfirmasi & Bayar</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body neumorphic-modal-body">
-            <div id="modalContent"></div>
-        </div>
-        <div class="modal-footer neumorphic-modal-footer">
-            <button type="button" class="modal-cancel neumorphic-btn-cancel">Batal</button>
-            <button type="button" class="modal-confirm neumorphic-btn-confirm">Konfirmasi & Bayar</button>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Additional Styles */
-    .neumorphic-modal {
-        background: var(--card-surface);
-        border-radius: 20px;
-        box-shadow: 8px 8px 30px var(--dark-shadow), -8px -8px 30px var(--light-shadow);
-        border: 1px solid var(--inner-highlight);
-        color: var(--primary-text);
-        font-family: 'Poppins', sans-serif;
-    }
-    .neumorphic-modal-header {
-        border-bottom: 1px solid var(--inner-highlight);
-        background: var(--card-surface-alt);
-        border-radius: 20px 20px 0 0;
-        color: var(--primary-text);
-    }
-    .neumorphic-modal-title {
-        color: var(--primary-text);
-        font-family: 'Orbitron', sans-serif;
-        font-weight: 700;
-    }
-    .neumorphic-modal-close {
-        color: var(--accent-text);
-        background: transparent;
-        border: none;
-        font-size: 1.5rem;
-        border-radius: 50%;
-        transition: background 0.2s;
-    }
-    .neumorphic-modal-close:hover {
-        background: var(--hover-glow);
-        color: var(--primary-text);
-    }
-    .neumorphic-modal-body {
-        background: var(--card-surface);
-        color: var(--primary-text);
-    }
-    .neumorphic-modal-footer {
-        border-top: 1px solid var(--inner-highlight);
-        background: var(--card-surface-alt);
-        border-radius: 0 0 20px 20px;
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        padding: 20px 25px;
-    }
-    .neumorphic-btn-cancel {
-        background: var(--card-surface-alt);
-        color: var(--primary-text);
-        border: 1px solid var(--inner-highlight);
-        border-radius: 10px;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 600;
-        padding: 12px 24px;
-        box-shadow: 4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow);
-        transition: background 0.2s, color 0.2s;
-    }
-    .neumorphic-btn-cancel:hover {
-        background: var(--active-state);
-        color: var(--primary-text);
-        box-shadow: 2px 2px 6px var(--dark-shadow), -2px -2px 6px var(--light-shadow), 0 0 10px var(--hover-glow);
-    }
-    .neumorphic-btn-confirm {
-        background: var(--accent-text);
-        color: var(--base-bg);
-        border: none;
-        border-radius: 10px;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 700;
-        padding: 12px 24px;
-        box-shadow: 4px 4px 12px var(--dark-shadow), -4px -4px 12px var(--light-shadow);
-        transition: background 0.2s, color 0.2s;
-    }
-    .neumorphic-btn-confirm:hover {
-        background: var(--primary-text);
-        color: var(--accent-text);
-        box-shadow: 2px 2px 8px var(--dark-shadow), -2px -2px 8px var(--light-shadow), 0 0 10px var(--hover-glow);
-    }
-    .user-input {
-        margin-bottom: 2rem;
-    }
-    
-    .input-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .input-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .required {
-        color: #dc3545;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-    }
-    
-    .form-input.error {
-        border-color: #dc3545;
-        animation: shake 0.5s ease;
-    }
-    
-    .help-text {
-        display: block;
-        margin-top: 0.25rem;
-        color: #6c757d;
-        font-size: 0.875rem;
-    }
-    
-    .variant-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-    
-    .variant-item {
-        border: 2px solid #e9ecef;
-        border-radius: 12px;
-        padding: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: white;
-    }
-    
-    .variant-item:hover {
-        border-color: #007bff;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .variant-item.selected {
-        border-color: #007bff;
-        background: #f8f9ff;
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-    }
-    
-    .variant-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    
-    .v-name {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-    
-    .v-price {
-        font-weight: 700;
-        color: #007bff;
-        font-size: 1.1rem;
-    }
-    
-    .buy-btn {
-        width: 100%;
-        padding: 1rem 2rem;
-        background: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: not-allowed;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-    
-    .buy-btn:enabled {
-        background: #28a745;
-        cursor: pointer;
-    }
-    
-    .buy-btn:enabled:hover {
-        background: #218838;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-    }
-    
-    .order-summary {
-        background: linear-gradient(135deg, #001a33 0%, #004080 50%, #0066cc 100%);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 2rem 0;
-        border-left: 4px solid #007bff;
-    }
-    
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .summary-row.total {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #ffffff;
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-    }
-    
-    .confirmation-details {
-        margin: 1rem 0;
-    }
-    
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-        background: #f8f9fa;
-        border-radius: 6px;
-    }
-    
-    .detail-row.total {
-        background: #e7f3ff;
-        font-weight: 700;
-        color: #007bff;
-    }
-    
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    
-    .modal-error {
-        color: #dc3545;
-    }
-    
-    .modal-success {
-        color: #28a745;
-    }
-    
-    .note {
-        margin-top: 1rem;
-        font-style: italic;
-        color: #6c757d;
-    }
-</style>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const tabs = document.querySelectorAll(".tab-btn");
@@ -458,11 +167,10 @@
         const modalCancel = document.querySelector(".modal-cancel");
         const modalClose = document.querySelector(".modal-close");
         const orderSummary = document.getElementById("orderSummary");
-        
-        // Get all user input fields
         const userInputs = document.querySelectorAll('.user-input input');
         const paymentOptions = document.querySelectorAll('input[name="payment_method"]');
-        
+        let lastFocusedElement = null;
+
         // Tab handler
         tabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -480,49 +188,30 @@
                 document.querySelectorAll(".variant-item").forEach(i => i.classList.remove("selected"));
                 item.classList.add("selected");
                 variantCode.value = item.dataset.code;
-                
-                // Enable buy button
                 buyBtn.disabled = false;
                 buyBtn.innerHTML = '<span>🛒</span> Beli Sekarang - ' + item.querySelector('.v-price').textContent;
-                
-                // Show order summary
-                orderSummary.style.display = "block";
-                
-                // Update summary
+                orderSummary.classList.remove('hidden');
                 updateOrderSummary();
-                
-                // Add animation to buy button
                 buyBtn.style.animation = "pulse 0.5s ease";
-                setTimeout(() => {
-                    buyBtn.style.animation = "";
-                }, 500);
+                setTimeout(() => { buyBtn.style.animation = ""; }, 500);
             });
         });
 
-        // Payment method selection
         paymentOptions.forEach(option => {
             option.addEventListener('change', function() {
                 updateOrderSummary();
             });
         });
 
-        // Update order summary
         function updateOrderSummary() {
             const selectedVariant = document.querySelector('.variant-item.selected');
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
             const targetInput = document.querySelector('input[name="target_id"]');
-            
             if (selectedVariant) {
                 document.getElementById('summaryProduct').textContent = '{{ object.brand }}';
                 document.getElementById('summaryPackage').textContent = selectedVariant.querySelector('.v-name').textContent;
                 document.getElementById('summaryTotal').textContent = selectedVariant.querySelector('.v-price').textContent;
-                
-                if (targetInput && targetInput.value) {
-                    document.getElementById('summaryTarget').textContent = targetInput.value;
-                } else {
-                    document.getElementById('summaryTarget').textContent = '-';
-                }
-                
+                document.getElementById('summaryTarget').textContent = (targetInput && targetInput.value) ? targetInput.value : '-';
                 if (selectedPayment) {
                     const paymentText = selectedPayment.parentElement.querySelector('h4').textContent;
                     document.getElementById('summaryPayment').textContent = paymentText;
@@ -530,56 +219,58 @@
             }
         }
 
-        // Real-time update when user types
         userInputs.forEach(input => {
             input.addEventListener('input', () => {
-                // Remove error style
                 input.classList.remove('error');
-                
-                // Update summary if it's target_id
-                if (input.name === 'target_id') {
-                    updateOrderSummary();
-                }
+                if (input.name === 'target_id') updateOrderSummary();
             });
         });
 
-        // Show modal function
         function showModal(message) {
+            lastFocusedElement = document.activeElement;
             modalContent.innerHTML = message;
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            // Focus trap: focus first button in modal
+            setTimeout(() => {
+                const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+                if (focusable.length) focusable[0].focus();
+            }, 50);
         }
 
-        // Hide modal function
         function hideModal() {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            if (lastFocusedElement) lastFocusedElement.focus();
         }
 
         // Modal event listeners
-        modalConfirm.addEventListener('click', function() {
-            // Submit form setelah konfirmasi
-            form.submit();
-        });
-
+        modalConfirm.addEventListener('click', function() { form.submit(); });
         modalCancel.addEventListener('click', hideModal);
         modalClose.addEventListener('click', hideModal);
-
-        // Close modal when clicking outside
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                hideModal();
+        modal.addEventListener('click', function(e) { if (e.target === modal) hideModal(); });
+        document.addEventListener('keydown', function(e) {
+            if (modal.style.display === 'flex') {
+                if (e.key === 'Escape') hideModal();
+                // Trap focus inside modal
+                if (e.key === 'Tab') {
+                    const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+                    if (!focusable.length) return;
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+                    } else {
+                        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+                    }
+                }
             }
         });
 
-        // Buy button click handler
         buyBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            
             let hasEmptyField = false;
             let emptyFields = [];
-            
-            // Check if any required field is empty
             userInputs.forEach(input => {
                 if (input.hasAttribute('required') && !input.value.trim()) {
                     hasEmptyField = true;
@@ -588,7 +279,6 @@
                     input.focus();
                 }
             });
-            
             if (hasEmptyField) {
                 showModal(`
                     <div class="modal-error">
@@ -601,7 +291,6 @@
                 `);
                 return;
             }
-            
             if (!variantCode.value) {
                 showModal(`
                     <div class="modal-error">
@@ -611,19 +300,15 @@
                 `);
                 return;
             }
-
-            // Build confirmation message
             const selectedVariant = document.querySelector('.variant-item.selected');
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
             const paymentText = selectedPayment.parentElement.querySelector('h4').textContent;
-            
             let confirmMsg = `
                 <div class="modal-success">
                     <h4>✅ Konfirmasi Pesanan</h4>
                     <p>Pastikan data berikut sudah benar:</p>
                     <div class="confirmation-details">
             `;
-            
             userInputs.forEach(input => {
                 const label = input.placeholder || input.name;
                 confirmMsg += `
@@ -633,7 +318,6 @@
                     </div>
                 `;
             });
-            
             confirmMsg += `
                         <div class="detail-row">
                             <strong>Produk:</strong>
@@ -652,10 +336,9 @@
                             <span>${selectedVariant.querySelector('.v-price').textContent}</span>
                         </div>
                     </div>
-                    <p class="note">Klik "Konfirmasi & Bayar" untuk melanjutkan ke halaman pembayaran.</p>
+                    <p class="note">Klik \"Konfirmasi & Bayar\" untuk melanjutkan ke halaman pembayaran.</p>
                 </div>
             `;
-            
             showModal(confirmMsg);
         });
     });
