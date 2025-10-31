@@ -116,31 +116,20 @@
                         </div>
                     </div>
                 </label>
-
-
-
+                
+                <div class="-btn-wrapper">
+                    <button type="button" class="buy-btn buy-btn-primary" id="buyBtn" disabled>
+                        <span>🛒</span> Beli Sekarang
+                    </button>
+                </div>
+            </div>
         <!-- Hidden input for selected variant code -->
         <input type="hidden" name="variant_code" id="variantCode">
 
-        <!-- Order Summary (shown when variant selected) -->
-        <div class="order-summary-row-wrapper">
-            <div class="order-summary hidden" id="orderSummary">
-                <div class="summary-row"><strong>Produk:</strong> <span id="summaryProduct">-</span></div>
-                <div class="summary-row"><strong>Paket:</strong> <span id="summaryPackage">-</span></div>
-                <div class="summary-row"><strong>Tujuan:</strong> <span id="summaryTarget">-</span></div>
-                <div class="summary-row"><strong>Metode Bayar:</strong> <span id="summaryPayment">-</span></div>
-                <div class="summary-row total"><strong>Total:</strong> <span id="summaryTotal">-</span></div>
-            </div>
-            <div class="buy-btn-wrapper">
-                <button type="button" class="buy-btn" id="buyBtn" disabled>
-                    <span>🛒</span> Beli Sekarang
-                </button>
-            </div>
-        </div>
 
         <!-- Modal for order review -->
         <div class="custom-modal neumorphic-modal" id="customModal" style="display: none;">
-            <div class="modal-dialog">
+            <div class="modal-dialobuyg">
                 <div class="modal-header neumorphic-modal-header">
                     <span class="neumorphic-modal-title">Review Pesanan</span>
                     <button type="button" class="modal-close neumorphic-modal-close" aria-label="Tutup">&times;</button>

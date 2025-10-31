@@ -1,3 +1,41 @@
+/* ===== FULL WIDTH ORDER SUMMARY ON PAYMENT PAGE ===== */
+.payment-page .payment-card.order-summary {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+}
+@media (max-width: 900px) {
+  .payment-page .payment-card.order-summary {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 18px 0;
+  }
+}
+/* ===== PRIMARY BUY BUTTON (Beli Sekarang) ===== */
+.buy-btn-primary {
+  background: linear-gradient(90deg, #4f8cff 0%, #2563eb 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 4px 16px var(--dark-shadow), 0 1.5px 0 #2563eb inset;
+}
+.buy-btn-primary:disabled {
+  background: #2d3139ff;
+  color: #e6e6e6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.buy-btn-primary:hover:not(:disabled),
+.buy-btn-primary:focus-visible:not(:disabled) {
+  background: linear-gradient(90deg, #2563eb 0%, #4f8cff 100%);
+  color: #fff;
+  box-shadow: 0 6px 24px #2563eb44, 0 1.5px 0 #4f8cff inset;
+  transform: translateY(-2px) scale(1.03);
+}
 /* ===== UTILITY CLASSES ===== */
 .hidden {
   display: none !important;
