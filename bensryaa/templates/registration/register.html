@@ -4,52 +4,61 @@
 {% block title %}Register - BennSrya{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-  <div class="auth-card">
-    <div class="auth-header">
-      <h2>🎉 Daftar Akun BennSrya</h2>
-      <p>Bergabunglah dengan komunitas kami</p>
-    </div>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2><i class="fas fa-user-plus"></i> Daftar Akun BennSrya</h2>
+          <p>Bergabunglah dengan komunitas kami</p>
+        </div>
 
-    {% if messages %}
-      <div class="auth-messages">
-        {% for message in messages %}
-          <div class="message error">{{ message }}</div>
-        {% endfor %}
+        {% if messages %}
+          <div class="auth-messages">
+            {% for message in messages %}
+              <div class="alert alert-danger mx-3 mt-3" role="alert">
+                <i class="fas fa-exclamation-circle"></i> {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="full_name" class="form-label"><i class="fas fa-id-card me-1"></i> Nama Lengkap</label>
+            <input type="text" name="full_name" id="full_name" required class="form-control" placeholder="Nama lengkap sesuai identitas" autofocus>
+          </div>
+          
+          <div class="mb-3">
+            <label for="username" class="form-label"><i class="fas fa-user me-1"></i> Username</label>
+            <input type="text" name="username" id="username" required class="form-control" placeholder="Pilih username unik">
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label"><i class="fas fa-key me-1"></i> Password</label>
+            <input type="password" name="password" id="password" required class="form-control" placeholder="Buat password minimal 8 karakter">
+            <small class="form-text text-muted">Password minimal 8 karakter</small>
+          </div>
+
+          <div class="mb-4">
+            <label for="confirm_password" class="form-label"><i class="fas fa-check-circle me-1"></i> Konfirmasi Password</label>
+            <input type="password" name="confirm_password" id="confirm_password" required class="form-control" placeholder="Ketik ulang password Anda">
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-user-plus me-2"></i> Daftar Sekarang
+            </button>
+          </div>
+        </form>
+
+        <div class="auth-footer">
+          <p>
+            Sudah punya akun? <a href="{% url 'bensryaa:login' %}" class="auth-link">Login di sini</a>
+          </p>
+        </div>
       </div>
-    {% endif %}
-
-    <form method="POST" class="auth-form">
-      <div class="form-group">
-        <label for="full_name">📝 Nama Lengkap</label>
-        <input type="text" name="full_name" id="full_name" required class="form-input" placeholder="Nama lengkap sesuai identitas">
-      </div>
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="username">👤 Username</label>
-        <input type="text" name="username" id="username" required class="form-input" placeholder="Pilih username unik">
-      </div>
-
-      <div class="form-group">
-        <label for="password">🔒 Password</label>
-        <input type="password" name="password" id="password" required class="form-input" placeholder="Buat password minimal 8 karakter">
-        <small class="form-hint">Password minimal 8 karakter</small>
-      </div>
-
-      <div class="form-group">
-        <label for="confirm_password">✅ Konfirmasi Password</label>
-        <input type="password" name="confirm_password" id="confirm_password" required class="form-input" placeholder="Ketik ulang password Anda">
-      </div>
-
-      <button type="submit" class="auth-submit-btn">
-        <span>🎯 Daftar Sekarang</span>
-      </button>
-    </form>
-
-    <div class="auth-footer">
-      <p>
-        Sudah punya akun? <a href="{% url 'bensryaa:login' %}" class="auth-link">Login di sini</a>
-      </p>
     </div>
   </div>
 </div>

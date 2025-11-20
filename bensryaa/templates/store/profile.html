@@ -4,46 +4,73 @@
 {% block title %}Profil - BennSrya Store{% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="profile-wrapper">
-    {% if user.is_authenticated %}
-      <div class="profile-card">
-        <div class="profile-header">
-          <div class="profile-avatar-text">
-            {{ user.username|slice:":1"|upper }}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+      {% if user.is_authenticated %}
+        <div class="card shadow-custom-lg">
+          <!-- Profile Header -->
+          <div class="card-header text-center py-4 bg-gradient-primary text-white">
+            <div class="rounded-circle bg-white text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: 700;">
+              {{ user.username|slice:":1"|upper }}
+            </div>
+            <h1 class="h4 mb-2">{{ user.get_full_name|default:user.username }}</h1>
+            <p class="mb-0 small"><i class="fas fa-calendar-alt me-1"></i> Bergabung sejak {{ user.date_joined|date:"d M Y" }}</p>
           </div>
-          <h1>{{ user.get_full_name|default:user.username }}</h1>
-          <p class="joined">Bergabung sejak {{ user.date_joined|date:"d M Y" }}</p>
-        </div>
 
-        <div class="profile-info">
-          <div class="info-item">
-            <span class="label">Nama</span>
-            <span class="value">{{ user.get_full_name|default:"-" }}</span>
+          <!-- Profile Info -->
+          <div class="card-body p-4">
+            <h5 class="mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Informasi Profil</h5>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <small class="text-muted d-block">Nama Lengkap</small>
+                  <strong>{{ user.get_full_name|default:"-" }}</strong>
+                </div>
+                <i class="fas fa-user text-primary"></i>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <small class="text-muted d-block">Email</small>
+                  <strong>{{ user.email|default:"-" }}</strong>
+                </div>
+                <i class="fas fa-envelope text-primary"></i>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <small class="text-muted d-block">Username</small>
+                  <strong>{{ user.username }}</strong>
+                </div>
+                <i class="fas fa-at text-primary"></i>
+              </div>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="label">Email</span>
-            <span class="value">{{ user.email|default:"-" }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">Username</span>
-            <span class="value">{{ user.username }}</span>
-          </div>
-        </div>
 
-        <div class="profile-actions">
-          <a href="{% url 'bensryaa:transaction_history' %}" class="btn action-btn status-pending">📜 Riwayat Transaksi</a>
-          <a href="{% url 'bensryaa:logout' %}" class="btn action-btn danger">🚪 Logout</a>
+          <!-- Profile Actions -->
+          <div class="card-footer bg-light p-4">
+            <div class="d-grid gap-2">
+              <a href="{% url 'bensryaa:transaction_history' %}" class="btn btn-primary">
+                <i class="fas fa-receipt me-2"></i> Riwayat Transaksi
+              </a>
+              <a href="{% url 'bensryaa:logout' %}" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
-    {% else %}
-      <div class="profile-card">
-  <p class="text-center">Silakan login untuk melihat profil</p>
-  <a href="{% url 'bensryaa:login' %}" class="btn action-btn status-pending mt-4 block text-center">Login Sekarang</a>
-      </div>
-    {% endif %}
+      {% else %}
+        <div class="card shadow-custom text-center py-5">
+          <div class="card-body">
+            <i class="fas fa-user-lock fs-1 text-muted mb-4"></i>
+            <h3 class="mb-3">Silakan Login</h3>
+            <p class="text-muted mb-4">Untuk melihat profil Anda</p>
+            <a href="{% url 'bensryaa:login' %}" class="btn btn-primary">
+              <i class="fas fa-sign-in-alt me-2"></i> Login Sekarang
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </div>
-
-<!-- Profile page styling moved to style.css for consistency -->
 {% endblock %}

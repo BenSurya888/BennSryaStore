@@ -5,19 +5,27 @@
 {% block title %}{{ object.brand }} - BennSrya Store{% endblock %}
 
 {% block content %}
-<section class="product-detail container">
+<div class="container py-4">
     <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'bensryaa:index' %}">🏠 Home</a>
-        <span>{{ object.brand }}</span>
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'bensryaa:index' %}"><i class="fas fa-home"></i> Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object.brand }}</li>
+        </ol>
     </nav>
 
-    <!-- Product Header -->
-    <div class="product-header">
-        <img src="{{ brand_logo }}" alt="{{ object.brand }}" class="product-logo">
-        <div class="info">
-            <h1>{{ object.brand }}</h1>
-            <p>{{ object.brand }} Top Up, proses cepat & otomatis 24/7.</p>
+    <!-- Product Header Card -->
+    <div class="card shadow-custom mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <img src="{{ brand_logo }}" alt="{{ object.brand }}" class="rounded" style="height: 80px; width: 80px; object-fit: contain; background: var(--bg-lighter); padding: 0.5rem;">
+                </div>
+                <div class="col">
+                    <h1 class="h3 mb-2 fw-bold">{{ object.brand }}</h1>
+                    <p class="text-secondary mb-0"><i class="fas fa-bolt text-warning"></i> {{ object.brand }} Top Up, proses cepat & otomatis 24/7.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -26,123 +34,156 @@
         {% csrf_token %}
         
         <!-- User Input Fields -->
-        <div class="user-input">
-            {% for field in input_fields %}
-            <div class="input-group">
-                <label for="{{ field.name }}" class="input-label">
-                    {{ field.label }}
-                    {% if field.required %}<span class="required">*</span>{% endif %}
-                </label>
-                <input
-                    type="{{ field.type }}"
-                    name="{{ field.name }}"
-                    id="{{ field.name }}"
-                    placeholder="{{ field.placeholder }}"
-                    {% if field.required %}required{% endif %}
-                    {% if field.pattern %}pattern="{{ field.pattern }}"{% endif %}
-                    {% if field.title %}title="{{ field.title }}"{% endif %}
-                    class="form-input"
-                >
-                {% if field.help_text %}
-                <small class="help-text">{{ field.help_text }}</small>
-                {% endif %}
+        <div class="card shadow-custom mb-4">
+            <div class="card-header">
+                <i class="fas fa-user-edit"></i> Informasi Akun Game
             </div>
-            {% endfor %}
-        </div>
-
-        <!-- Tab kategori -->
-        <div class="variant-tabs">
-            {% for category, items in grouped_variants.items %}
-                <button type="button" 
-                        class="tab-btn {% if forloop.first %}active{% endif %}" 
-                        data-category="{{ category }}">
-                    {{ category|title }}
-                </button>
-            {% endfor %}
-        </div>
-
-        <!-- Daftar varian -->
-        {% for category, items in grouped_variants.items %}
-            <div class="variant-list {% if forloop.first %}active{% endif %}" data-category="{{ category }}">
-                <div class="variant-grid">
-                    {% for variant in items %}
-                        <div class="variant-item" data-code="{{ variant.code }}" data-price="{{ variant.price }}" data-name="{{ variant.name }}">
-                            <div class="variant-content">
-                                <span class="v-name">{{ variant.name }}</span>
-                                <span class="v-price">{{ variant.price|rupiah }}</span>
-                            </div>
-                        </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for field in input_fields %}
+                    <div class="col-md-6">
+                        <label for="{{ field.name }}" class="form-label fw-semibold">
+                            {{ field.label }}
+                            {% if field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input
+                            type="{{ field.type }}"
+                            name="{{ field.name }}"
+                            id="{{ field.name }}"
+                            placeholder="{{ field.placeholder }}"
+                            {% if field.required %}required{% endif %}
+                            {% if field.pattern %}pattern="{{ field.pattern }}"{% endif %}
+                            {% if field.title %}title="{{ field.title }}"{% endif %}
+                            class="form-control"
+                        >
+                        {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-        {% endfor %}
+        </div>
+
+        <!-- Tab kategori -->
+        <div class="card shadow-custom mb-4">
+            <div class="card-header">
+                <i class="fas fa-gamepad"></i> Pilih Paket
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-pills mb-3" role="tablist">
+                    {% for category, items in grouped_variants.items %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                                    type="button" 
+                                    data-category="{{ category }}">
+                                {{ category|title }}
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Daftar varian -->
+                {% for category, items in grouped_variants.items %}
+                    <div class="variant-list {% if forloop.first %}active{% endif %}" data-category="{{ category }}">
+                        <div class="row g-2">
+                            {% for variant in items %}
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="card variant-item h-100" data-code="{{ variant.code }}" data-price="{{ variant.price }}" data-name="{{ variant.name }}" style="cursor: pointer; transition: all 0.3s ease;">
+                                        <div class="card-body text-center p-3">
+                                            <div class="fw-semibold mb-1 text-truncate" style="font-size: 0.9rem;">{{ variant.name }}</div>
+                                            <div class="text-primary fw-bold">{{ variant.price|rupiah }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
 
         <!-- Opsi Pembayaran -->
-        <div class="payment-methods">
-            <h3>💳 Metode Pembayaran</h3>
-            <div class="payment-options">
-                <label class="payment-option">
-                    <input type="radio" name="payment_method" value="qris" checked>
-                    <div class="payment-card">
-                        <div class="payment-icon">📱</div>
-                        <div class="payment-info">
-                            <h4>QRIS</h4>
-                            <p>Bayar dengan QRIS via e-wallet</p>
-                            <small>Proses instan, semua e-wallet</small>
-                        </div>
+        <div class="card shadow-custom mb-4">
+            <div class="card-header">
+                <i class="fas fa-credit-card"></i> Metode Pembayaran
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="qris" checked class="btn-check" id="payment-qris">
+                            <label class="card h-100 text-center" for="payment-qris" style="cursor: pointer; transition: all 0.3s ease;">
+                                <div class="card-body">
+                                    <div class="fs-1 mb-2">📱</div>
+                                    <h5 class="card-title">QRIS</h5>
+                                    <p class="card-text small text-secondary mb-1">Bayar dengan QRIS via e-wallet</p>
+                                    <small class="text-muted">Proses instan</small>
+                                </div>
+                            </label>
+                        </label>
                     </div>
-                </label>
 
-                <label class="payment-option">
-                    <input type="radio" name="payment_method" value="virtual_account">
-                    <div class="payment-card">
-                        <div class="payment-icon">🏦</div>
-                        <div class="payment-info">
-                            <h4>Virtual Account</h4>
-                            <p>Transfer via BCA, BRI, BNI, Mandiri</p>
-                            <small>Transfer bank tanpa admin</small>
-                        </div>
+                    <div class="col-md-4">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="virtual_account" class="btn-check" id="payment-va">
+                            <label class="card h-100 text-center" for="payment-va" style="cursor: pointer; transition: all 0.3s ease;">
+                                <div class="card-body">
+                                    <div class="fs-1 mb-2">🏦</div>
+                                    <h5 class="card-title">Virtual Account</h5>
+                                    <p class="card-text small text-secondary mb-1">Transfer via bank</p>
+                                    <small class="text-muted">Tanpa admin</small>
+                                </div>
+                            </label>
+                        </label>
                     </div>
-                </label>
 
-                <label class="payment-option">
-                    <input type="radio" name="payment_method" value="ewallet">
-                    <div class="payment-card">
-                        <div class="payment-icon">💎</div>
-                        <div class="payment-info">
-                            <h4>E-Wallet</h4>
-                            <p>Bayar dengan DANA, OVO, GoPay</p>
-                            <small>Mudah dan cepat</small>
-                        </div>
+                    <div class="col-md-4">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="ewallet" class="btn-check" id="payment-ewallet">
+                            <label class="card h-100 text-center" for="payment-ewallet" style="cursor: pointer; transition: all 0.3s ease;">
+                                <div class="card-body">
+                                    <div class="fs-1 mb-2">💎</div>
+                                    <h5 class="card-title">E-Wallet</h5>
+                                    <p class="card-text small text-secondary mb-1">DANA, OVO, GoPay</p>
+                                    <small class="text-muted">Mudah & cepat</small>
+                                </div>
+                            </label>
+                        </label>
                     </div>
-                </label>
+                </div>
                 
-                <div class="-btn-wrapper">
-                    <button type="button" class="buy-btn buy-btn-primary" id="buyBtn" disabled>
-                        <span>🛒</span> Beli Sekarang
+                <div class="mt-4 d-grid">
+                    <button type="button" class="btn btn-primary btn-lg" id="buyBtn" disabled>
+                        <i class="fas fa-shopping-cart me-2"></i> Beli Sekarang
                     </button>
                 </div>
             </div>
+        </div>
         <!-- Hidden input for selected variant code -->
         <input type="hidden" name="variant_code" id="variantCode">
 
 
         <!-- Modal for order review -->
-        <div class="custom-modal neumorphic-modal" id="customModal" style="display: none;">
-            <div class="modal-dialobuyg">
-                <div class="modal-header neumorphic-modal-header">
-                    <span class="neumorphic-modal-title">Review Pesanan</span>
-                    <button type="button" class="modal-close neumorphic-modal-close" aria-label="Tutup">&times;</button>
-                </div>
-                <div class="modal-body neumorphic-modal-body" id="modalContent">
-                    <!-- Modal content will be injected by JS -->
-                </div>
-                <div class="modal-footer neumorphic-modal-footer">
-                    <button type="button" class="modal-cancel neumorphic-btn-cancel">Batal</button>
-                    <button type="button" class="modal-confirm neumorphic-btn-confirm">Konfirmasi & Bayar</button>
+        <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="customModalLabel"><i class="fas fa-clipboard-check"></i> Review Pesanan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalContent">
+                        <!-- Modal content will be injected by JS -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary modal-confirm">Konfirmasi & Bayar</button>
+                    </div>
                 </div>
             </div>
         </div>
+    </form>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const tabs = document.querySelectorAll(".tab-btn");
@@ -156,14 +197,15 @@
         const modalCancel = document.querySelector(".modal-cancel");
         const modalClose = document.querySelector(".modal-close");
         const orderSummary = document.getElementById("orderSummary");
-        const userInputs = document.querySelectorAll('.user-input input');
+        const userInputs = document.querySelectorAll('.card-body input[type="text"], .card-body input[type="number"]');
         const paymentOptions = document.querySelectorAll('input[name="payment_method"]');
         let lastFocusedElement = null;
 
-        // Tab handler
-        tabs.forEach(tab => {
+        // Tab handler for nav-pills
+        const tabButtons = document.querySelectorAll('.nav-pills .nav-link');
+        tabButtons.forEach(tab => {
             tab.addEventListener("click", () => {
-                tabs.forEach(t => t.classList.remove("active"));
+                tabButtons.forEach(t => t.classList.remove("active"));
                 lists.forEach(l => l.classList.remove("active"));
                 tab.classList.add("active");
                 const category = tab.dataset.category;
@@ -178,11 +220,11 @@
                 item.classList.add("selected");
                 variantCode.value = item.dataset.code;
                 buyBtn.disabled = false;
-                buyBtn.innerHTML = '<span>🛒</span> Beli Sekarang - ' + item.querySelector('.v-price').textContent;
-                orderSummary.classList.remove('hidden');
+                const variantName = item.dataset.name;
+                const variantPrice = item.dataset.price;
+                buyBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> Beli Sekarang - Rp ' + Number(variantPrice).toLocaleString('id-ID');
+                if(orderSummary) orderSummary.classList.remove('hidden');
                 updateOrderSummary();
-                buyBtn.style.animation = "pulse 0.5s ease";
-                setTimeout(() => { buyBtn.style.animation = ""; }, 500);
             });
         });
 
@@ -197,13 +239,22 @@
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
             const targetInput = document.querySelector('input[name="target_id"]');
             if (selectedVariant) {
-                document.getElementById('summaryProduct').textContent = '{{ object.brand }}';
-                document.getElementById('summaryPackage').textContent = selectedVariant.querySelector('.v-name').textContent;
-                document.getElementById('summaryTotal').textContent = selectedVariant.querySelector('.v-price').textContent;
-                document.getElementById('summaryTarget').textContent = (targetInput && targetInput.value) ? targetInput.value : '-';
-                if (selectedPayment) {
-                    const paymentText = selectedPayment.parentElement.querySelector('h4').textContent;
-                    document.getElementById('summaryPayment').textContent = paymentText;
+                const summaryProduct = document.getElementById('summaryProduct');
+                const summaryPackage = document.getElementById('summaryPackage');
+                const summaryTotal = document.getElementById('summaryTotal');
+                const summaryTarget = document.getElementById('summaryTarget');
+                const summaryPayment = document.getElementById('summaryPayment');
+                
+                if(summaryProduct) summaryProduct.textContent = '{{ object.brand }}';
+                if(summaryPackage) summaryPackage.textContent = selectedVariant.dataset.name;
+                if(summaryTotal) summaryTotal.textContent = 'Rp ' + Number(selectedVariant.dataset.price).toLocaleString('id-ID');
+                if(summaryTarget && targetInput) summaryTarget.textContent = targetInput.value || '-';
+                if (selectedPayment && summaryPayment) {
+                    const paymentLabel = selectedPayment.nextElementSibling;
+                    if(paymentLabel) {
+                        const paymentTitle = paymentLabel.querySelector('.card-title');
+                        if(paymentTitle) summaryPayment.textContent = paymentTitle.textContent;
+                    }
                 }
             }
         }
@@ -215,45 +266,21 @@
             });
         });
 
+        // Bootstrap Modal instance
+        const bootstrapModal = new bootstrap.Modal(modal);
+
         function showModal(message) {
-            lastFocusedElement = document.activeElement;
             modalContent.innerHTML = message;
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            // Focus trap: focus first button in modal
-            setTimeout(() => {
-                const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
-                if (focusable.length) focusable[0].focus();
-            }, 50);
+            bootstrapModal.show();
         }
 
         function hideModal() {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            if (lastFocusedElement) lastFocusedElement.focus();
+            bootstrapModal.hide();
         }
 
         // Modal event listeners
-        modalConfirm.addEventListener('click', function() { form.submit(); });
-        modalCancel.addEventListener('click', hideModal);
-        modalClose.addEventListener('click', hideModal);
-        modal.addEventListener('click', function(e) { if (e.target === modal) hideModal(); });
-        document.addEventListener('keydown', function(e) {
-            if (modal.style.display === 'flex') {
-                if (e.key === 'Escape') hideModal();
-                // Trap focus inside modal
-                if (e.key === 'Tab') {
-                    const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
-                    if (!focusable.length) return;
-                    const first = focusable[0];
-                    const last = focusable[focusable.length - 1];
-                    if (e.shiftKey) {
-                        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
-                    } else {
-                        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
-                    }
-                }
-            }
+        modalConfirm.addEventListener('click', function() { 
+            form.submit(); 
         });
 
         buyBtn.addEventListener("click", (e) => {
@@ -291,41 +318,48 @@
             }
             const selectedVariant = document.querySelector('.variant-item.selected');
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
-            const paymentText = selectedPayment.parentElement.querySelector('h4').textContent;
+            const paymentLabel = selectedPayment.nextElementSibling;
+            const paymentTitle = paymentLabel ? paymentLabel.querySelector('.card-title') : null;
+            const paymentText = paymentTitle ? paymentTitle.textContent : 'Unknown';
+            
             let confirmMsg = `
-                <div class="modal-success">
-                    <h4>✅ Konfirmasi Pesanan</h4>
-                    <p>Pastikan data berikut sudah benar:</p>
-                    <div class="confirmation-details">
+                <div class="text-start">
+                    <h5 class="mb-3"><i class="fas fa-check-circle text-success"></i> Konfirmasi Pesanan</h5>
+                    <p class="text-muted mb-3">Pastikan data berikut sudah benar:</p>
+                    <div class="list-group list-group-flush">
             `;
             userInputs.forEach(input => {
-                const label = input.placeholder || input.name;
-                confirmMsg += `
-                    <div class="detail-row">
-                        <strong>${label}:</strong>
-                        <span>${input.value}</span>
-                    </div>
-                `;
+                if(input.value) {
+                    const label = input.placeholder || input.getAttribute('name');
+                    confirmMsg += `
+                        <div class="list-group-item d-flex justify-content-between px-0">
+                            <strong class="text-secondary">${label}:</strong>
+                            <span>${input.value}</span>
+                        </div>
+                    `;
+                }
             });
             confirmMsg += `
-                        <div class="detail-row">
-                            <strong>Produk:</strong>
+                        <div class="list-group-item d-flex justify-content-between px-0">
+                            <strong class="text-secondary">Produk:</strong>
                             <span>{{ object.brand }}</span>
                         </div>
-                        <div class="detail-row">
-                            <strong>Paket:</strong>
-                            <span>${selectedVariant.querySelector('.v-name').textContent}</span>
+                        <div class="list-group-item d-flex justify-content-between px-0">
+                            <strong class="text-secondary">Paket:</strong>
+                            <span>${selectedVariant.dataset.name}</span>
                         </div>
-                        <div class="detail-row">
-                            <strong>Metode Bayar:</strong>
+                        <div class="list-group-item d-flex justify-content-between px-0">
+                            <strong class="text-secondary">Metode Bayar:</strong>
                             <span>${paymentText}</span>
                         </div>
-                        <div class="detail-row total">
-                            <strong>Total Bayar:</strong>
-                            <span>${selectedVariant.querySelector('.v-price').textContent}</span>
+                        <div class="list-group-item d-flex justify-content-between px-0 border-top border-2 pt-3 mt-2">
+                            <strong class="text-primary fs-5">Total Bayar:</strong>
+                            <strong class="text-primary fs-5">Rp ${Number(selectedVariant.dataset.price).toLocaleString('id-ID')}</strong>
                         </div>
                     </div>
-                    <p class="note">Klik \"Konfirmasi & Bayar\" untuk melanjutkan ke halaman pembayaran.</p>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle"></i> Klik <strong>Konfirmasi & Bayar</strong> untuk melanjutkan ke halaman pembayaran.
+                    </div>
                 </div>
             `;
             showModal(confirmMsg);

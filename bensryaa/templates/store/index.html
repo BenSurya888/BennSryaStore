@@ -3,59 +3,68 @@
 {% block title %}Home - BennSrya{% endblock %}
 
 {% block content %}
-<section class="hero">
+<!-- Hero Banner Section -->
+<section class="hero-section py-4">
   <div class="swiper hero-slider">
     <div class="swiper-wrapper">
       <div class="swiper-slide">
-        <img src="{% static 'store/img/banner1.png' %}" alt="Banner 1">
+        <img src="{% static 'store/img/banner1.png' %}" alt="Banner 1" class="w-100">
       </div>
       <div class="swiper-slide">
-        <img src="{% static 'store/img/banner2.png' %}" alt="Banner 2">
+        <img src="{% static 'store/img/banner2.png' %}" alt="Banner 2" class="w-100">
       </div>
     </div>
-
-    <!-- Navigasi -->
     <div class="swiper-button-prev"></div>
     <div class="swiper-button-next"></div>
-
-    <!-- Dots -->
     <div class="swiper-pagination"></div>
   </div>
 </section>
 
-<div class="category-nav container">
-  {% for category in products_by_category.keys %}
-    <button class="category-nav-btn" onclick="scrollToCategory('{{ category }}')">
-      {{ category|title }}
-    </button>
-  {% endfor %}
-</div>
-
-{% for category, product_list in products_by_category.items %}
-<section class="category-section" id="category-{{ category }}">
-  <h2 class="category-title">{{ category|title }}</h2>
-  <div class="product-carousel" id="carousel-{{ category }}">
-    {% for product in product_list %}
-      <article class="card" data-category="{{ product.category }}">
-        <a href="{% url 'bensryaa:product_detail' product.id %}">
-          <div class="card-image-container">
-            <img src="{{ product.logo_url }}" alt="{{ product.brand }}" loading="lazy">
-            <div class="card-overlay"></div>
-          </div>
-          <div class="meta">
-            <h3>{{ product.brand }}</h3>
-          </div>
-        </a>
-      </article>
+<!-- Category Navigation -->
+<div class="container mb-4">
+  <div class="d-flex flex-wrap gap-2 justify-content-center">
+    {% for category in products_by_category.keys %}
+      <button class="btn btn-outline-primary btn-sm" onclick="scrollToCategory('{{ category }}')">
+        <i class="fas fa-tag me-1"></i> {{ category|title }}
+      </button>
     {% endfor %}
   </div>
-  {% if product_list|length > 6 %}
-  <div class="load-more-wrapper">
-    <button class="load-more-btn" data-category="{{ category }}">
-      <span>⬇️</span> Load More {{ category|title }}
-    </button>
+</div>
+
+<!-- Products by Category -->
+{% for category, product_list in products_by_category.items %}
+<section class="category-section mb-5" id="category-{{ category }}">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="h3 fw-bold mb-0">
+        <span class="text-gradient">{{ category|title }}</span>
+      </h2>
+      <span class="badge bg-primary">{{ product_list|length }} Produk</span>
+    </div>
+    
+    <div class="row g-3 g-md-4 product-grid" id="carousel-{{ category }}">
+      {% for product in product_list %}
+        <div class="col-6 col-md-4 col-lg-3 col-xl-2 product-item" data-category="{{ product.category }}">
+          <div class="card product-card h-100">
+            <a href="{% url 'bensryaa:product_detail' product.id %}" class="text-decoration-none">
+              <img src="{{ product.logo_url }}" class="card-img-top" alt="{{ product.brand }}" loading="lazy">
+              <div class="card-body text-center">
+                <h6 class="card-title mb-0">{{ product.brand }}</h6>
+              </div>
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    
+    {% if product_list|length > 6 %}
+    <div class="text-center mt-4">
+      <button class="btn btn-primary btn-lg load-more-btn" data-category="{{ category }}">
+        <i class="fas fa-chevron-down me-2"></i> Muat Lebih Banyak {{ category|title }}
+      </button>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 </section>
 {% endfor %}
 
@@ -88,63 +97,66 @@ function scrollToCategory(category) {
   }
 }
 
-// Load more functionality
+// Load more functionality with Bootstrap
 document.querySelectorAll('.category-section').forEach(section => {
   const category = section.id.replace('category-', '');
-  const cards = section.querySelectorAll('.card');
+  const productItems = section.querySelectorAll('.product-item');
   const loadMoreBtn = section.querySelector('.load-more-btn');
   
   if (!loadMoreBtn) return;
   
-  let visibleCount = 7;
+  let visibleCount = 6; // Show 6 items initially on desktop, all on mobile
+  
+  // Check if mobile
+  const isMobile = window.innerWidth < 768;
+  if (isMobile) {
+    visibleCount = 12; // Show more on mobile initially
+  }
   
   // Initial show
-  showCards();
+  showItems();
   
   loadMoreBtn.addEventListener('click', () => {
-    visibleCount += 7;
-    showCards();
+    visibleCount += 6;
+    showItems();
     
-    // Smooth scroll to the newly shown cards
-    if (visibleCount < cards.length) {
-      cards[visibleCount - 1].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest',
-        inline: 'start'
-      });
-    }
+    // Add loading animation
+    loadMoreBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memuat...';
+    
+    setTimeout(() => {
+      loadMoreBtn.innerHTML = '<i class="fas fa-chevron-down me-2"></i> Muat Lebih Banyak ' + category.charAt(0).toUpperCase() + category.slice(1);
+      
+      // Smooth scroll
+      if (visibleCount < productItems.length) {
+        productItems[visibleCount - 1].scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest'
+        });
+      }
+    }, 300);
   });
   
-  function showCards() {
-    cards.forEach((card, i) => {
-      card.style.display = i < visibleCount ? "block" : "none";
+  function showItems() {
+    productItems.forEach((item, i) => {
+      if (i < visibleCount) {
+        item.style.display = "";
+        item.classList.add('fade-in');
+      } else {
+        item.style.display = "none";
+      }
     });
     
-    if (visibleCount >= cards.length) {
+    if (visibleCount >= productItems.length) {
       loadMoreBtn.style.display = "none";
     }
   }
-});
-
-// Add intersection observer for animations
-document.addEventListener('DOMContentLoaded', function() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.animationPlayState = 'running';
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
   
-  // Observe category sections
-  document.querySelectorAll('.category-section').forEach(section => {
-    observer.observe(section);
-  });
-  
-  // Observe cards
-  document.querySelectorAll('.card').forEach(card => {
-    observer.observe(card);
+  // Update visible count on resize
+  window.addEventListener('resize', () => {
+    const nowMobile = window.innerWidth < 768;
+    if (nowMobile !== isMobile) {
+      location.reload(); // Simple reload on breakpoint change
+    }
   });
 });
 </script>

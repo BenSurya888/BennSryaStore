@@ -5,163 +5,270 @@
 {% block title %}Pembayaran - Order #{{ order.id }}{% endblock %}
 
 {% block content %}
-<section class="container payment-page">
-    <h1>🧾 Konfirmasi Pesanan #{{ order.id }}</h1>
+<div class="container py-4">
+    <div class="mb-4">
+        <h1 class="h3"><i class="fas fa-receipt text-primary"></i> Konfirmasi Pesanan #{{ order.id }}</h1>
+        <p class="text-muted">Selesaikan pembayaran untuk memproses pesanan Anda</p>
+    </div>
 
     <!-- Ringkasan order -->
-    <div class="payment-card order-summary">
-        <h2>📋 Ringkasan Pesanan</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <strong>Produk:</strong>
-                <span>{{ order.product_variant.product.brand }}</span>
-            </div>
-            <div class="summary-item">
-                <strong>Kategori:</strong>
-                <span>{{ order.product_variant.category }}</span>
-            </div>
-            <div class="summary-item">
-                <strong>Paket:</strong>
-                <span>{{ order.product_variant.name }}</span>
-            </div>
-            <div class="summary-item">
-                <strong>Harga:</strong>
-                <span class="price">{{ order.amount|rupiah }}</span>
-            </div>
-            <div class="summary-item">
-                <strong>Tujuan:</strong>
-                <span>{{ order.target_id }}</span>
-            </div>
-            {% if order.server_id %}
-            <div class="summary-item">
-                <strong>Server ID:</strong>
-                <span>{{ order.server_id }}</span>
-            </div>
-            {% endif %}
-            <div class="summary-item">
-                <strong>Metode Bayar:</strong>
-                <span class="payment-method-badge">
-                    {% if order.payment_method == 'qris' %}
-                    📱 QRIS
-                    {% elif order.payment_method == 'virtual_account' %}
-                    🏦 Virtual Account
-                    {% elif order.payment_method == 'ewallet' %}
-                    💎 E-Wallet
-                    {% else %}
-                    {{ order.payment_method|title }}
-                    {% endif %}
-                </span>
-            </div>
-            <div class="summary-item">
-                <strong>Status:</strong>
-                <span class="status-badge status-{{ order.status }}">
-                    {% if order.status == 'pending' %}
-                        Menunggu Pembayaran
-                    {% elif order.status == 'paid' %}
-                        Pembayaran Diterima
-                    {% elif order.status == 'success' %}
-                        Berhasil Diproses
-                    {% endif %}
-                </span>
+    <div class="card shadow-custom mb-4">
+        <div class="card-header">
+            <i class="fas fa-clipboard-list"></i> Ringkasan Pesanan
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <strong class="text-secondary">Produk:</strong>
+                        <span>{{ order.product_variant.product.brand }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <strong class="text-secondary">Kategori:</strong>
+                        <span>{{ order.product_variant.category }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <strong class="text-secondary">Paket:</strong>
+                        <span class="text-end">{{ order.product_variant.name }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <strong class="text-secondary">Tujuan:</strong>
+                        <code>{{ order.target_id }}</code>
+                    </div>
+                </div>
+                {% if order.server_id %}
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <strong class="text-secondary">Server ID:</strong>
+                        <code>{{ order.server_id }}</code>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <strong class="text-secondary">Metode Bayar:</strong>
+                        <span>
+                            {% if order.payment_method == 'qris' %}
+                            <i class="fas fa-qrcode text-primary"></i> QRIS
+                            {% elif order.payment_method == 'virtual_account' %}
+                            <i class="fas fa-university text-primary"></i> Virtual Account
+                            {% elif order.payment_method == 'ewallet' %}
+                            <i class="fas fa-wallet text-primary"></i> E-Wallet
+                            {% else %}
+                            {{ order.payment_method|title }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div>
+                            <strong class="text-secondary d-block mb-1">Status:</strong>
+                            <span class="badge badge-{{ order.status }}">
+                                {% if order.status == 'pending' %}
+                                    <i class="fas fa-clock"></i> Menunggu Pembayaran
+                                {% elif order.status == 'paid' %}
+                                    <i class="fas fa-check"></i> Pembayaran Diterima
+                                {% elif order.status == 'success' %}
+                                    <i class="fas fa-check-circle"></i> Berhasil Diproses
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <strong class="text-secondary d-block mb-1">Total Bayar:</strong>
+                            <h4 class="text-primary mb-0">{{ order.amount|rupiah }}</h4>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Instruksi pembayaran berdasarkan metode -->
-    <div class="payment-card payment-instructions">
-        <h2>💳 Instruksi Pembayaran</h2>
+    <div class="card shadow-custom mb-4">
+        <div class="card-header">
+            <i class="fas fa-credit-card"></i> Instruksi Pembayaran
+        </div>
+        <div class="card-body">
         
         {% if order.payment_method == 'qris' %}
-        <div class="payment-method-instruction active" id="qris-instruction">
-            <h3>📱 Pembayaran via QRIS</h3>
-            <p>Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
-            <div class="qris-box">
-                <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="qris-img">
-                <div class="qris-steps">
-                    <h4>Langkah-langkah:</h4>
-                    <ol>
-                        <li>Buka aplikasi e-wallet atau mobile banking Anda</li>
-                        <li>Pilih fitur scan QRIS</li>
-                        <li>Arahkan kamera ke kode QR di atas</li>
-                        <li>Konfirmasi pembayaran sebesar <strong>{{ order.amount|rupiah }}</strong></li>
-                        <li>Screenshot bukti pembayaran</li>
-                    </ol>
+        <div id="qris-instruction">
+            <h5 class="mb-3"><i class="fas fa-qrcode text-primary"></i> Pembayaran via QRIS</h5>
+            <p class="text-muted">Scan kode QR di bawah menggunakan aplikasi e-wallet atau mobile banking yang mendukung QRIS:</p>
+            <div class="text-center my-4">
+                <img src="{% static 'store/img/qriss.jpg' %}" alt="QRIS BennSrya" class="img-fluid rounded shadow-sm" style="max-width: 300px;">
+                <div class="mt-3">
+                    <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn btn-primary">
+                        <i class="fas fa-download me-2"></i> Download QRIS
+                    </a>
                 </div>
-                <a href="{% static 'store/img/qriss.jpg' %}" download="QRIS-BennSrya.png" class="btn-download">
-                    📥 Download QRIS
-                </a>
+            </div>
+            <div class="alert alert-info">
+                <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Langkah-langkah:</h6>
+                <ol class="mb-0 ps-3">
+                    <li>Buka aplikasi e-wallet atau mobile banking Anda</li>
+                    <li>Pilih fitur scan QRIS</li>
+                    <li>Arahkan kamera ke kode QR di atas</li>
+                    <li>Konfirmasi pembayaran sebesar <strong>{{ order.amount|rupiah }}</strong></li>
+                    <li>Screenshot bukti pembayaran</li>
+                </ol>
             </div>
         </div>
 
         {% elif order.payment_method == 'virtual_account' %}
-        <div class="payment-method-instruction active" id="va-instruction">
-            <h3>🏦 Pembayaran via Virtual Account</h3>
-            <p>Silakan transfer ke Virtual Account berikut:</p>
-            <div class="virtual-account-box">
-                <div class="va-number">
-                    <strong>Virtual Account Number:</strong>
-                    <span class="va-code">8880 1234 5678 9012</span>
-                    <button class="copy-btn" onclick="copyVANumber()">📋 Copy</button>
+        <div id="va-instruction">
+            <h5 class="mb-3"><i class="fas fa-university text-primary"></i> Pembayaran via Virtual Account</h5>
+            <p class="text-muted">Silakan transfer ke salah satu rekening bank berikut:</p>
+            
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-university text-primary"></i> BCA</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">1231089221</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('1231089221')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="amount-info">
-                    <strong>Jumlah Transfer:</strong>
-                    <span class="amount">{{ order.amount|rupiah }}</span>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-university text-primary"></i> BRI</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">0987654321</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('0987654321')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="bank-details">
-                    <h4>Bank Tersedia:</h4>
-                    <ul>
-                        <li><strong>BCA:</strong> 1231089221 a.n BennSrya</li>
-                        <li><strong>BRI:</strong> 0987654321 a.n BennSrya</li>
-                        <li><strong>BNI:</strong> 1234567890 a.n BennSrya</li>
-                        <li><strong>Mandiri:</strong> 9876543210 a.n BennSrya</li>
-                    </ul>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-university text-primary"></i> BNI</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">1234567890</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('1234567890')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="va-steps">
-                    <h4>Langkah-langkah:</h4>
-                    <ol>
-                        <li>Buka aplikasi mobile banking atau ATM bank Anda</li>
-                        <li>Pilih menu transfer</li>
-                        <li>Masukkan nomor Virtual Account di atas</li>
-                        <li>Transfer sebesar <strong>{{ order.amount|rupiah }}</strong></li>
-                        <li>Simpan bukti transfer</li>
-                    </ol>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-university text-primary"></i> Mandiri</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">9876543210</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('9876543210')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="alert alert-warning">
+                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Jumlah Transfer:</h6>
+                <h4 class="mb-0">{{ order.amount|rupiah }}</h4>
+            </div>
+            
+            <div class="alert alert-info">
+                <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Langkah-langkah:</h6>
+                <ol class="mb-0 ps-3">
+                    <li>Buka aplikasi mobile banking atau ATM bank Anda</li>
+                    <li>Pilih menu transfer ke rekening bank</li>
+                    <li>Masukkan nomor rekening di atas</li>
+                    <li>Transfer sebesar <strong>{{ order.amount|rupiah }}</strong></li>
+                    <li>Simpan bukti transfer</li>
+                </ol>
             </div>
         </div>
 
         {% elif order.payment_method == 'ewallet' %}
-        <div class="payment-method-instruction active" id="ewallet-instruction">
-            <h3>💎 Pembayaran via E-Wallet</h3>
-            <p>Transfer ke salah satu e-wallet berikut:</p>
-            <div class="ewallet-options">
-                <div class="ewallet-item">
-                    <div class="ewallet-icon">💰</div>
-                    <div class="ewallet-info">
-                        <strong>DANA:</strong> 081907444304 a.n BennSrya
+        <div id="ewallet-instruction">
+            <h5 class="mb-3"><i class="fas fa-wallet text-primary"></i> Pembayaran via E-Wallet</h5>
+            <p class="text-muted">Transfer ke salah satu e-wallet berikut:</p>
+            
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-wallet text-primary"></i> DANA</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">081907444304</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('081907444304')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
                     </div>
                 </div>
-                <div class="ewallet-item">
-                    <div class="ewallet-icon">💫</div>
-                    <div class="ewallet-info">
-                        <strong>GOPAY:</strong> 081907444304 a.n BennSrya
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-wallet text-primary"></i> GOPAY</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">081907444304</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('081907444304')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
                     </div>
                 </div>
-                <div class="ewallet-item">
-                    <div class="ewallet-icon">⚡</div>
-                    <div class="ewallet-info">
-                        <strong>OVO:</strong> 081907444304 a.n BennSrya
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-wallet text-primary"></i> OVO</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">081907444304</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('081907444304')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
                     </div>
                 </div>
-                <div class="ewallet-item">
-                    <div class="ewallet-icon">🔗</div>
-                    <div class="ewallet-info">
-                        <strong>LinkAja:</strong> 081907444304 a.n BennSrya
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-wallet text-primary"></i> LinkAja</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <code class="fs-5">081907444304</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('081907444304')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">a.n BennSrya</small>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="ewallet-steps">
-                <h4>Langkah-langkah:</h4>
-                <ol>
+            
+            <div class="alert alert-info">
+                <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Langkah-langkah:</h6>
+                <ol class="mb-0 ps-3">
                     <li>Buka aplikasi e-wallet pilihan Anda</li>
                     <li>Pilih menu transfer atau kirim uang</li>
                     <li>Masukkan nomor tujuan yang tertera di atas</li>
@@ -173,45 +280,76 @@
         </div>
         {% endif %}
 
-        <p class="note">💡 Setelah transfer, upload bukti pembayaran di bawah ini. Pesanan akan diproses setelah pembayaran dikonfirmasi.</p>
+        <div class="alert alert-warning mt-3">
+            <i class="fas fa-lightbulb"></i> Setelah transfer, upload bukti pembayaran di bawah ini. Pesanan akan diproses setelah pembayaran dikonfirmasi.
+        </div>
+        </div>
     </div>
 
     <!-- Upload bukti -->
-    <div class="payment-card upload-proof">
-        <h2>📤 Upload Bukti Pembayaran</h2>
+    <div class="card shadow-custom mb-4">
+        <div class="card-header">
+            <i class="fas fa-upload"></i> Upload Bukti Pembayaran
+        </div>
+        <div class="card-body">
         
         {% if order.payment_proof %}
-            <p><strong>Bukti yang sudah diupload:</strong></p>
-            <a href="{{ order.payment_proof.url }}" target="_blank">
-                <img src="{{ order.payment_proof.url }}" alt="Bukti pembayaran" class="proof-preview">
-            </a>
-            <p class="note success">✅ Bukti pembayaran telah diupload. Silakan tunggu konfirmasi admin.</p>
+            <div class="alert alert-success">
+                <h6 class="alert-heading"><i class="fas fa-check-circle"></i> Bukti Pembayaran Sudah Diupload</h6>
+                <p class="mb-3">Silakan tunggu konfirmasi dari admin kami.</p>
+            </div>
+            <div class="text-center">
+                <a href="{{ order.payment_proof.url }}" target="_blank">
+                    <img src="{{ order.payment_proof.url }}" alt="Bukti pembayaran" class="img-fluid rounded shadow-sm" style="max-width: 400px;">
+                </a>
+            </div>
         {% else %}
-            <form method="post" enctype="multipart/form-data" class="proof-form">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="file-input-container">
-                    <label for="proofInput" class="file-input-label">
-                        <i>📁</i>
-                        <span class="file-text">Klik untuk memilih file atau seret file ke sini</span>
-                        <span class="file-types">(JPG, PNG, PDF - Maks. 5MB)</span>
-                    </label>
-                    <input type="file" name="proof" id="proofInput" accept=".jpg,.jpeg,.png,.pdf" required>
+                <div class="mb-3">
+                    <label for="proofInput" class="form-label">Pilih File Bukti Pembayaran</label>
+                    <input type="file" name="proof" id="proofInput" class="form-control" accept=".jpg,.jpeg,.png,.pdf" required>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle"></i> Format: JPG, PNG, PDF. Maksimal 5MB
+                    </div>
                 </div>
-                <button type="submit" class="upload-btn">
-                    <span>📤 Upload Bukti Pembayaran</span>
-                </button>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-upload me-2"></i> Upload Bukti Pembayaran
+                    </button>
+                </div>
             </form>
         {% endif %}
+        </div>
     </div>
-</section>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function copyVANumber() {
-        const vaNumber = '8880123456789012';
-        navigator.clipboard.writeText(vaNumber).then(() => {
-            alert('Nomor Virtual Account berhasil disalin!');
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Show toast notification using Bootstrap
+            const toastHTML = `
+                <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+                    <div class="toast show" role="alert">
+                        <div class="toast-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong class="me-auto">Berhasil!</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            Nomor rekening berhasil disalin: ${text}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', toastHTML);
+            setTimeout(() => {
+                document.querySelector('.toast').remove();
+            }, 3000);
+        }).catch(err => {
+            alert('Gagal menyalin: ' + err);
         });
     }
 

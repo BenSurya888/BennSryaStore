@@ -5,55 +5,61 @@
 
 {% block content %}
 
-<section class="container">
-  <h1 class="page-title">📜 Riwayat Transaksi</h1>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0"><i class="fas fa-receipt text-primary"></i> Riwayat Transaksi</h1>
+    <span class="badge bg-primary">{{ orders|length }} Transaksi</span>
+  </div>
+  
   {% if orders %}
   <!-- Desktop Table -->
-  <div class="transactions-table-wrapper">
-    <table class="transactions-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Produk</th>
-          <th>Paket</th>
-          <th>Harga</th>
-          <th>Tujuan</th>
-          <th>Status</th>
-          <th>Tanggal</th>
-          <th>Bukti</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for order in orders %}
-        <tr>
-          <td>#{{ order.id }}</td>
-          <td>{{ order.product_variant.product.brand }}</td>
-          <td>{{ order.product_variant.name }}</td>
-          <td>{{ order.amount|rupiah }}</td>
-          <td>{{ order.target_id }}</td>
-          <td>
-            {% if order.status == "pending" %}
-              <span class="status-badge status-pending">⏳ Pending</span>
-            {% elif order.status == "paid" %}
-              <span class="status-badge status-paid">💰 Dibayar</span>
-            {% elif order.status == "success" %}
-              <span class="status-badge status-success">✅ Sukses</span>
-            {% elif order.status == "failed" %}
-              <span class="status-badge status-failed">❌ Gagal</span>
-            {% endif %}
-          </td>
-          <td>{{ order.created_at|date:"d M Y H:i" }}</td>
-          <td>
-            {% if order.payment_proof %}
-              <a href="{{ order.payment_proof.url }}" target="_blank">📷 Lihat</a>
-            {% else %}
-              -
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="card shadow-custom d-none d-lg-block mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produk</th>
+            <th>Paket</th>
+            <th>Harga</th>
+            <th>Tujuan</th>
+            <th>Status</th>
+            <th>Tanggal</th>
+            <th>Bukti</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><strong>#{{ order.id }}</strong></td>
+            <td>{{ order.product_variant.product.brand }}</td>
+            <td><small>{{ order.product_variant.name }}</small></td>
+            <td><strong class="text-primary">{{ order.amount|rupiah }}</strong></td>
+            <td><code>{{ order.target_id }}</code></td>
+            <td>
+              {% if order.status == "pending" %}
+                <span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>
+              {% elif order.status == "paid" %}
+                <span class="badge badge-paid"><i class="fas fa-money-bill"></i> Dibayar</span>
+              {% elif order.status == "success" %}
+                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Sukses</span>
+              {% elif order.status == "failed" %}
+                <span class="badge badge-failed"><i class="fas fa-times-circle"></i> Gagal</span>
+              {% endif %}
+            </td>
+            <td><small>{{ order.created_at|date:"d M Y H:i" }}</small></td>
+            <td>
+              {% if order.payment_proof %}
+                <a href="{{ order.payment_proof.url }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-image"></i> Lihat</a>
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Mobile Cards -->
